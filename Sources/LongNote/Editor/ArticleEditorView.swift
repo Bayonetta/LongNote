@@ -56,7 +56,10 @@
       .toolbar {
         if let onClose {
           ToolbarItem(placement: .topBarLeading) {
-            Button("Close", action: onClose)
+            Button(action: onClose) {
+              Image(systemName: "xmark")
+            }
+            .accessibilityLabel("Close")
           }
         }
         if let exportAction {
