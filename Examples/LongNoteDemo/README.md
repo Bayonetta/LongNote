@@ -35,9 +35,11 @@ Select the `LongNoteDemo` scheme and run on an iOS 18 simulator or device.
 
 ## What to try
 
-- On first launch the app loads a fully-populated **sample article** and opens it
-  straight in the editor (delete it from the draft list and use
-  *Load Sample Article* to bring it back).
+- On first launch the app loads a fully-populated **sample article** and opens
+  it straight in the editor: news-style body copy with bold and colored runs,
+  an inline link, every block style (H1 / H2 / body / quote / list / divider),
+  a generated cover image and an inline figure. Delete it from the draft list
+  and use *Load Sample Article* to bring it back.
 - Type a title, add a cover, write a summary.
 - Press Return to split paragraphs, Backspace at a line start to merge them back.
 - Use the bottom toolbar to switch a paragraph to H1/H2/quote/list, insert a

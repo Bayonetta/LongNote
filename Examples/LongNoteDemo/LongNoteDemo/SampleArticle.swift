@@ -4,53 +4,200 @@ import UIKit
 
 /// A ready-made sample article for the demo app's "Load Sample Article" action.
 ///
+/// The body text is excerpted (with attribution in the source note below) from
+/// the Apple Newsroom press release "Apple supercharges its tools and
+/// technologies for developers" (June 9, 2025), so the demo shows realistic,
+/// well-edited English copy. Cover and figure images are generated locally at
+/// seed time and written through the `ArticleStore`, which keeps the fixture
+/// self-contained — no photo-library permission is needed to see a full
+/// article on first launch.
+///
 /// Keeping sample content in the *demo target* (instead of the library) means
 /// an interviewer — or screenshot tooling — sees a fully populated editor on
 /// first open, while the library itself stays free of fixture data.
 enum SampleArticle {
 
-  static func make() -> Article {
-    Article(
-      title: "LongNote — a long-image editor component library",
-      summary: "A SwiftUI + TextKit 2 rebuild of a classic long-article editor: per-paragraph rich text, mixed block layout, long-image export and autosaved drafts.",
+  /// Source of the excerpted news copy, credited in `sourceNote()`.
+  private static let newsURL = URL(
+    string: "https://www.apple.com/newsroom/2025/06/apple-supercharges-its-tools-and-technologies-for-developers/"
+  )!
+
+  static func make(store: any ArticleStore) -> Article {
+    var article = Article(
+      title: "Apple Supercharges Its Tools and Technologies for Developers",
+      summary: "Access to the on-device Apple Intelligence model, large language model integration in Xcode, and an elegant new software design across Apple platforms.",
       paragraphs: [
-        para(.title, "Welcome to LongNote"),
-        para(
-          .body,
-          "This is a sample article. Every paragraph is its own UITextView (TextKit 2), so any selection can carry its own bold, strikethrough, color or link — exactly like a classic long-article editor."
-        ),
-        Paragraph(kind: .body, text: richBody()),
-        para(.header, "Things to try"),
-        para(.list, "Press Return to split a paragraph; Backspace at a line start merges it back"),
-        para(.list, "Select text and use the floating toolbar for bold / strikethrough / color / link"),
-        para(.list, "Use the bottom toolbar to switch block styles, or insert a divider or image", isLastInList: true),
-        para(.quote, "\"Good tools get out of the way.\" — tap the share icon to export a long image"),
+        para(.title, "A New Design, More Focus on Content"),
+        para(.body, newsParagraphOne()),
+        para(.header, "What Developers Get"),
+        para(.list, "A beautiful new software design across iOS 26, iPadOS 26, macOS Tahoe 26, watchOS 26 and tvOS 26"),
+        para(.list, "The Foundation Models framework for on-device intelligence"),
+        para(.list, "Large language model integration in Xcode 26", isLastInList: true),
+        para(.quote, "“Developers play a vital role in shaping the experiences customers love across Apple platforms,” said Susan Prescott, Apple’s vice president of Worldwide Developer Relations."),
         Paragraph(kind: .divider),
-        para(
-          .body,
-          "Kill and relaunch the app — your draft is still here: it autosaves 2 s after you stop typing. Exported long images can be saved to Photos or shared anywhere."
-        ),
+        para(.body, newsParagraphTwo()),
+        para(.body, sourceNote()),
       ]
     )
+    // Insert the generated figure right after the opening news paragraph. The
+    // article id must exist first — the image is stored under it.
+    let figure = Paragraph(kind: .image, image: figure(store: store, for: article.id))
+    article.paragraphs.insert(figure, at: 2)
+
+    if let cover = coverImage(),
+      let data = cover.jpegData(compressionQuality: 0.9)
+    {
+      let fileName = "cover-\(UUID().uuidString).jpg"
+      _ = try? store.saveImage(data, for: article.id, fileName: fileName)
+      article.cover = ArticleImage(
+        fileName: fileName,
+        width: cover.size.width,
+        height: cover.size.height
+      )
+    }
+    return article
+  }
+
+  // MARK: - Paragraph copy
+
+  /// First news paragraph, with a bold run and an inline link.
+  private static func newsParagraphOne() -> CodableAttributedString {
+    let text = NSMutableAttributedString(string: "CUPERTINO, CALIFORNIA ")
+    text.append(body("Apple today announced new technologies and enhancements to its developer tools to help developers create more beautiful, intelligent, and engaging app experiences across Apple platforms. A "))
+    text.append(body("beautiful new software design", bold: true))
+    text.append(body(" brings more focus to content, and delivers more expressive and delightful experiences across iOS 26, iPadOS 26, macOS Tahoe 26, watchOS 26, and tvOS 26, while keeping them all instantly familiar. The "))
+    text.append(body("Foundation Models framework", color: TextStyle.linkColor.uiColor))
+    text.append(body(" joins a suite of tools that allow developers to tap into on-device intelligence, and "))
+    text.append(link("Xcode 26"))
+    text.append(body(" leverages large language models like ChatGPT, giving them access to Xcode’s Coding Tools and other intelligent features."))
+    return CodableAttributedString(text)
+  }
+
+  /// Second news paragraph, with a bold run.
+  private static func newsParagraphTwo() -> CodableAttributedString {
+    let text = NSMutableAttributedString(string: "These new resources join the extensive and continuously evolving set of technologies Apple offers developers, including ")
+    text.append(body("over 250,000 APIs", bold: true))
+    text.append(body(" that enable developers to integrate their apps with Apple’s hardware and software features."))
+    return CodableAttributedString(text)
+  }
+
+  /// Closing note that credits the excerpted news copy.
+  private static func sourceNote() -> CodableAttributedString {
+    let text = NSMutableAttributedString(string: "Body copy excerpted from a press release by ")
+    text.append(link("Apple Newsroom"))
+    text.append(body(", June 9, 2025, to give this demo realistic long-form English text. Everything else — cover, figure and layout — is generated by this app."))
+    return CodableAttributedString(text)
+  }
+
+  // MARK: - Images (generated)
+
+  /// 16:9 cover banner: indigo→blue gradient with the library wordmark.
+  private static func coverImage() -> UIImage? {
+    let size = CGSize(width: 1600, height: 900)
+    let renderer = UIGraphicsImageRenderer(size: size)
+    return renderer.image { context in
+      let rect = CGRect(origin: .zero, size: size)
+      let colors = [
+        UIColor(red: 0.23, green: 0.27, blue: 0.75, alpha: 1).cgColor,
+        UIColor(red: 0.16, green: 0.50, blue: 0.97, alpha: 1).cgColor,
+      ]
+      let gradient = CGGradient(
+        colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 1])!
+      context.cgContext.drawLinearGradient(
+        gradient, start: rect.origin, end: CGPoint(x: rect.maxX, y: rect.maxY),
+        options: [])
+
+      let title = NSAttributedString(
+        string: "LongNote",
+        attributes: [.font: UIFont.systemFont(ofSize: 120, weight: .bold), .foregroundColor: UIColor.white])
+      title.draw(at: CGPoint(x: 110, y: 300))
+
+      let subtitle = NSAttributedString(
+        string: "A data-driven long-image editor, rebuilt with TextKit 2 + SwiftUI",
+        attributes: [.font: UIFont.systemFont(ofSize: 44), .foregroundColor: UIColor.white.withAlphaComponent(0.85)])
+      subtitle.draw(at: CGPoint(x: 114, y: 470))
+    }
+  }
+
+  /// Inline figure: a light card sketching the package's three layers.
+  private static func figure(store: any ArticleStore, for id: UUID) -> ParagraphImage {
+    let size = CGSize(width: 1200, height: 800)
+    let fileName = "figure-\(UUID().uuidString).jpg"
+    if let image = figureImage(),
+      let data = image.jpegData(compressionQuality: 0.9)
+    {
+      _ = try? store.saveImage(data, for: id, fileName: fileName)
+    }
+    return ParagraphImage(
+      fileName: fileName,
+      width: size.width,
+      height: size.height,
+      caption: "Figure — the LongNote editor stack: a platform-neutral core, a TextKit 2 bridge, and a SwiftUI shell."
+    )
+  }
+
+  private static func figureImage() -> UIImage? {
+    let size = CGSize(width: 1200, height: 800)
+    let renderer = UIGraphicsImageRenderer(size: size)
+    return renderer.image { context in
+      let rect = CGRect(origin: .zero, size: size)
+      UIColor(red: 0.97, green: 0.97, blue: 0.98, alpha: 1).setFill()
+      context.fill(rect)
+
+      func box(_ label: String, _ detail: String, y: CGFloat) {
+        let box = CGRect(x: 140, y: y, width: 920, height: 170)
+        let path = UIBezierPath(roundedRect: box, cornerRadius: 24)
+        UIColor.white.setFill()
+        path.fill()
+        UIColor(red: 0.16, green: 0.50, blue: 0.97, alpha: 1).setStroke()
+        path.lineWidth = 4
+        path.stroke()
+        NSAttributedString(
+          string: label,
+          attributes: [.font: UIFont.systemFont(ofSize: 40, weight: .semibold), .foregroundColor: UIColor(red: 0.13, green: 0.13, blue: 0.15, alpha: 1)]
+        ).draw(in: box.insetBy(dx: 36, dy: 26))
+        NSAttributedString(
+          string: detail,
+          attributes: [.font: UIFont.systemFont(ofSize: 30), .foregroundColor: UIColor(red: 0.42, green: 0.42, blue: 0.46, alpha: 1)]
+        ).draw(in: box.insetBy(dx: 36, dy: 92))
+      }
+
+      box("LongNote", "SwiftUI + UIKit editor shell", y: 90)
+      box("RichTextView", "UIViewRepresentable bridge", y: 315)
+      box("LongNoteCore", "pure Foundation · runs on Linux too", y: 540)
+    }
   }
 
   // MARK: - Helpers
 
   private static func para(
-    _ kind: ParagraphKind, _ text: String, isLastInList: Bool = false
+    _ kind: ParagraphKind, _ text: CodableAttributedString, isLastInList: Bool = false
   ) -> Paragraph {
-    Paragraph(kind: kind, text: .init(string: text), isLastInList: isLastInList)
+    Paragraph(kind: kind, text: text, isLastInList: isLastInList)
   }
 
-  /// One body paragraph containing a bold run, to show per-range styling.
-  private static func richBody() -> CodableAttributedString {
-    let text = NSMutableAttributedString(string: "A run inside this paragraph is ")
-    text.append(
-      NSAttributedString(
-        string: "bold",
-        attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]
-      ))
-    text.append(NSAttributedString(string: ", so any selection can carry its own style."))
-    return CodableAttributedString(text)
+  private static func para(
+    _ kind: ParagraphKind, _ text: String, isLastInList: Bool = false
+  ) -> Paragraph {
+    Paragraph(kind: kind, text: CodableAttributedString(string: text), isLastInList: isLastInList)
+  }
+
+  private static func body(_ text: String, bold: Bool = false, color: UIColor? = nil) -> NSAttributedString {
+    let font = bold
+      ? UIFont.boldSystemFont(ofSize: TextStyle.bodyFontSize)
+      : UIFont.systemFont(ofSize: TextStyle.bodyFontSize)
+    return NSAttributedString(
+      string: text,
+      attributes: [.font: font, .foregroundColor: color ?? TextStyle.textColor.uiColor])
+  }
+
+  private static func link(_ text: String) -> NSAttributedString {
+    NSAttributedString(
+      string: text,
+      attributes: [
+        .font: UIFont.systemFont(ofSize: TextStyle.bodyFontSize),
+        .foregroundColor: TextStyle.linkColor.uiColor,
+        .link: newsURL,
+      ])
   }
 }

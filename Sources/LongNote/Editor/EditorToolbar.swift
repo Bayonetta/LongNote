@@ -4,7 +4,8 @@
   import LongNoteCore
 
   /// The main bottom toolbar: paragraph style menu, insert image, insert divider,
-  /// link, and text color.
+  /// link, and text color. Every item pairs its SF Symbol with a short caption
+  /// so the bar is self-explanatory.
   @MainActor
   struct EditorToolbar: View {
     let document: ArticleDocument
@@ -20,15 +21,14 @@
     }
 
     var body: some View {
-      HStack(spacing: 20) {
+      HStack(spacing: 4) {
         styleMenu
         imagePicker
         dividerButton
         linkButton
         colorButton
       }
-      .font(.system(size: 20))
-      .frame(maxWidth: .infinity)
+      .padding(.horizontal, 8)
       .padding(.bottom, 4)
       .onChange(of: selectedImageItem) { _, item in
         guard let item else { return }
@@ -77,18 +77,16 @@
           }
         }
       } label: {
-        Image(systemName: "textformat.size")
+        toolbarItem("textformat.size", caption: "Style")
       }
       .disabled(focusedID == nil)
-      .accessibilityLabel("Paragraph style")
     }
 
     private var imagePicker: some View {
       PhotosPicker(selection: $selectedImageItem, matching: .images) {
-        Image(systemName: "photo.on.rectangle.angled")
+        toolbarItem("photo.on.rectangle.angled", caption: "Image")
       }
       .disabled(focusedID == nil)
-      .accessibilityLabel("Insert image")
     }
 
     private var dividerButton: some View {
@@ -96,10 +94,9 @@
         guard let id = focusedID else { return }
         document.insertDivider(after: id)
       } label: {
-        Image(systemName: "minus")
+        toolbarItem("minus", caption: "Divider")
       }
       .disabled(focusedID == nil)
-      .accessibilityLabel("Insert divider")
     }
 
     private var linkButton: some View {
@@ -107,10 +104,9 @@
         guard focusedID != nil else { return }
         showLinkPrompt = true
       } label: {
-        Image(systemName: "link")
+        toolbarItem("link", caption: "Link")
       }
       .disabled(focusedID == nil)
-      .accessibilityLabel("Add link")
     }
 
     private var colorButton: some View {
@@ -118,10 +114,21 @@
         guard focusedID != nil else { return }
         showColorPanel = true
       } label: {
-        Image(systemName: "paintpalette")
+        toolbarItem("paintpalette", caption: "Color")
       }
       .disabled(focusedID == nil)
-      .accessibilityLabel("Text color")
+    }
+
+    /// One toolbar cell: SF Symbol above a small caption, filling its slot.
+    private func toolbarItem(_ icon: String, caption: String) -> some View {
+      VStack(spacing: 3) {
+        Image(systemName: icon)
+          .font(.system(size: 17, weight: .medium))
+        Text(caption)
+          .font(.system(size: 10))
+      }
+      .frame(maxWidth: .infinity)
+      .accessibilityLabel(caption)
     }
 
     // MARK: - Helpers

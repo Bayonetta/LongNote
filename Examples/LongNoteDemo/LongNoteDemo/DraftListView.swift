@@ -89,7 +89,7 @@ struct DraftListView: View {
   }
 
   private func loadSample() {
-    let article = SampleArticle.make()
+    let article = SampleArticle.make(store: store)
     try? store.save(article)
     reload()
     // Defer the push by one runloop: mutating `path` in the same tick as the

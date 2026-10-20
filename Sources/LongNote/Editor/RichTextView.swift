@@ -132,6 +132,23 @@
       textView.delegate = nil
     }
 
+    /// Always take the width SwiftUI proposes.
+    ///
+    /// Without this the representable is sized to the text view's *intrinsic*
+    /// content size — for a `UITextView` with scrolling disabled that is the
+    /// full unwrapped text width. Short paragraphs happen to fit on screen;
+    /// long ones lay out far wider than the screen and run off both edges
+    /// (and their first characters become invisible). Returning the proposal
+    /// pins the text container to the available width so text wraps normally.
+    /// `fileprivate` because `LongNoteTextView` is a private type.
+    fileprivate func sizeThatFits(
+      _ proposal: ProposedViewSize, uiView: LongNoteTextView, context: Context
+    ) -> CGSize? {
+      let width = proposal.width ?? (uiView.frame.width > 0 ? uiView.frame.width : 320)
+      let height = proposal.height ?? uiView.frame.height
+      return CGSize(width: width, height: height)
+    }
+
     // MARK: - Coordinator
 
     @MainActor

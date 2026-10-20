@@ -12,9 +12,9 @@
 
 </div>
 
-**LongNote** — a pure Swift Package that rebuilds the classic *Weibo Long Article* editor as a data-driven rich-text / multimedia card editor for long articles, in SwiftUI + TextKit 2, with all networking and platform integration stripped out.
+**LongNote** — a pure Swift Package that rebuilds the long-article feature of WeicoNote, a popular Weibo client, as a data-driven rich-text / multimedia card editor, in SwiftUI + TextKit 2, with all networking and platform integration stripped out.
 
-**LongNote** — SwiftUI + TextKit 2 で「定番ロングリードエディタ」の中核をクリーンルーム実装した、Swift Package 形式のコンポーネントライブラリです。ネットワーク連携（ログイン・素材・決済・投稿）は除外し、オフラインの編集と書き出しに特化しています。
+**LongNote** — 微博クライアント「WeicoNote」の長文章機能に由来する、SwiftUI + TextKit 2 でゼロから再構築したデータドリブンなリッチテキスト / マルチメディアカードエディタです。Swift Package として提供し、ネットワーク連携（ログイン・素材・決済・投稿）はすべて除外しています。
 
 ## Screenshots / スクリーンショット
 
@@ -31,7 +31,7 @@
 
 ### LongNote とは
 
-Swift Package Manager で配布できる、長文章（ロングリード）向けのリッチテキスト / マルチメディアカードエディタのコンポーネントライブラリです。2015 年の iOS 8 / Objective-C で書かれた定番エディタ（微博「头条文章专业版」）の中核部分を、SwiftUI と TextKit 2 でクリーンルーム実装（clean-room reimplementation）しました。
+Swift Package Manager で配布できる、長文章（ロングリード）向けのリッチテキスト / マルチメディアカードエディタのコンポーネントライブラリです。微博（Weibo）クライアント「WeicoNote」の長文章機能に発想を得て、SwiftUI と TextKit 2 ですべてゼロから再構築しました。
 
 オリジナルの優れていた部分をそのままに、ネットワークが必要な機能（アカウント、素材ライブラリ、決済、投稿）は意図的に含めていません。本パッケージは純粋に「オフライン編集 + 書き出し」のツールキットです。
 
@@ -163,7 +163,7 @@ Documents/Articles/<uuid>/article.json   ← ドキュメント全体（Codable�
 
 ### 原案とスコープ
 
-微博「头条文章专业版」（2015 年・iOS 8・Objective-C）の**エディタ中核**のクリーンルーム実装です。アカウント体系・素材ライブラリ・決済・投稿機能は意図的に移植していません。本パッケージはオフラインの編集・書き出しツールキットであり、MIT ライセンスで提供されます。
+微博「头条文章专业版」（2015 年・iOS 8・Objective-C）の**エディタ中核**、および微博クライアント「WeicoNote」の長文章機能に由来するクリーンルーム実装です。アカウント体系・素材ライブラリ・決済・投稿機能は意図的に移植していません。本パッケージはオフラインの編集・書き出しツールキットであり、MIT ライセンスで提供されます。
 
 ---
 
@@ -171,7 +171,7 @@ Documents/Articles/<uuid>/article.json   ← ドキュメント全体（Codable�
 
 ### What is LongNote
 
-A **pure Swift Package** component library: a data-driven rich-text / multimedia card editor for long articles, rebuilt in SwiftUI + TextKit 2 from the classic Weibo "头条文章专业版" editor — with all networking (Weibo login, material library, payment, publishing) stripped out.
+A **pure Swift Package** component library that descends from the long-article feature of WeicoNote, a popular Weibo client, and rebuilds it from scratch in SwiftUI + TextKit 2 — with all networking (login, material library, payment, publishing) stripped out.
 
 You get the parts that made the original editor great:
 
@@ -303,4 +303,4 @@ See `Examples/LongNoteDemo/README.md` for details and a no-XcodeGen route.
 
 ### Origin & scope
 
-This is a clean-room reimplementation of the *editor core* of Weico 头条文章专业版 (2015, iOS 8, Objective-C). Weibo's account system, material library, payment, and publishing were deliberately **not** ported — this package is purely an offline editing + export toolkit, licensed under the MIT License.
+LongNote descends from the long-article feature of WeicoNote, a popular Weibo client (2015, iOS 8, Objective-C), rebuilt from scratch as a modern Swift package. The account system, material library, payment, and publishing features were deliberately **not** ported — this package is purely an offline editing + export toolkit, licensed under the MIT License.
