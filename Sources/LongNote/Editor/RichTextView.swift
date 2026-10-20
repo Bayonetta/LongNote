@@ -132,23 +132,6 @@
       textView.delegate = nil
     }
 
-    /// Always take the width SwiftUI proposes.
-    ///
-    /// Without this the representable is sized to the text view's *intrinsic*
-    /// content size — for a `UITextView` with scrolling disabled that is the
-    /// full unwrapped text width. Short paragraphs happen to fit on screen;
-    /// long ones lay out far wider than the screen and run off both edges
-    /// (and their first characters become invisible). Returning the proposal
-    /// pins the text container to the available width so text wraps normally.
-    /// `fileprivate` because `LongNoteTextView` is a private type.
-    fileprivate func sizeThatFits(
-      _ proposal: ProposedViewSize, uiView: LongNoteTextView, context: Context
-    ) -> CGSize? {
-      let width = proposal.width ?? (uiView.frame.width > 0 ? uiView.frame.width : 320)
-      let height = proposal.height ?? uiView.frame.height
-      return CGSize(width: width, height: height)
-    }
-
     // MARK: - Coordinator
 
     @MainActor
@@ -240,7 +223,11 @@
 
   /// Internal `UITextView` subclass that draws a placeholder when empty and reports
   /// layout passes so the SwiftUI row height stays exact.
-  private final class LongNoteTextView: UITextView {
+  ///
+  /// Internal (not private) so `sizeThatFits(_:uiView:context:)` above can name
+  /// it in an internal signature — a fileprivate witness is not picked up by
+  /// SwiftUI's representable sizing.
+  final class LongNoteTextView: UITextView {
     var placeholder: String?
     var onLayoutSubviews: (() -> Void)?
 
@@ -257,6 +244,19 @@
     override func layoutSubviews() {
       super.layoutSubviews()
       onLayoutSubviews?()
+    }
+
+    /// Report *no* intrinsic size.
+    ///
+    /// A `UITextView` with `isScrollEnabled = false` reports the full unwrapped
+    /// text as its intrinsic content size (a 4,000-character paragraph wants a
+    /// 5,000 pt-wide view!). When SwiftUI takes that as the representable's
+    /// size, the text lays out on one enormous line and runs off both screen
+    /// edges. Opting out lets SwiftUI propose the real layout width, so the
+    /// text wraps at the available width; the row height is driven by
+    /// `RichTextView`'s reported height instead.
+    override var intrinsicContentSize: CGSize {
+      CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
     }
 
     required init?(coder: NSCoder) {
