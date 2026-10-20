@@ -1,0 +1,339 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		109ECD2584981FEE3407AC5D /* DraftListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B68632CFF4E247EBAAE9B17 /* DraftListView.swift */; };
+		4533ACB79D6CF683BB132E12 /* EditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9962B6B15EBBBD6A6A4D046B /* EditorScreen.swift */; };
+		9803130FC1E1655E4C040ADD /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ED60424FD842356CF76F57 /* ExportView.swift */; };
+		CF61AF4B67EDA014D966B25C /* LongNote in Frameworks */ = {isa = PBXBuildFile; productRef = E161171EF5C40E6545E6095F /* LongNote */; };
+		DE014362851CE90AF6B7C037 /* LongNoteDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FC245B9BEA77F6D2EF0EF5 /* LongNoteDemoApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0B68632CFF4E247EBAAE9B17 /* DraftListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftListView.swift; sourceTree = "<group>"; };
+		16FC245B9BEA77F6D2EF0EF5 /* LongNoteDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongNoteDemoApp.swift; sourceTree = "<group>"; };
+		4E19622C05FB08B639B0B4E1 /* LongNote */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LongNote; path = ../..; sourceTree = SOURCE_ROOT; };
+		64420825509A66659A8FF801 /* LongNoteDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LongNoteDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9962B6B15EBBBD6A6A4D046B /* EditorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorScreen.swift; sourceTree = "<group>"; };
+		D7ED60424FD842356CF76F57 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0E06F714694A956117354FC1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF61AF4B67EDA014D966B25C /* LongNote in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		11B272FF0C68C59A0E60B1E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				64420825509A66659A8FF801 /* LongNoteDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		24D79176332EA5D92908E447 /* LongNoteDemo */ = {
+			isa = PBXGroup;
+			children = (
+				0B68632CFF4E247EBAAE9B17 /* DraftListView.swift */,
+				9962B6B15EBBBD6A6A4D046B /* EditorScreen.swift */,
+				D7ED60424FD842356CF76F57 /* ExportView.swift */,
+				16FC245B9BEA77F6D2EF0EF5 /* LongNoteDemoApp.swift */,
+			);
+			path = LongNoteDemo;
+			sourceTree = "<group>";
+		};
+		524B4F95966D3A3D2C182ED6 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				4E19622C05FB08B639B0B4E1 /* LongNote */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		603511F4F713DE6743C9E976 = {
+			isa = PBXGroup;
+			children = (
+				24D79176332EA5D92908E447 /* LongNoteDemo */,
+				524B4F95966D3A3D2C182ED6 /* Packages */,
+				11B272FF0C68C59A0E60B1E5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FCDBA82A5FFC4DA13A1B5B57 /* LongNoteDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A5150F9D9463B2AD71EE46F2 /* Build configuration list for PBXNativeTarget "LongNoteDemo" */;
+			buildPhases = (
+				85E0557B4CB381063C863521 /* Sources */,
+				0E06F714694A956117354FC1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LongNoteDemo;
+			packageProductDependencies = (
+				E161171EF5C40E6545E6095F /* LongNote */,
+			);
+			productName = LongNoteDemo;
+			productReference = 64420825509A66659A8FF801 /* LongNoteDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		853A943286142225618C7631 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 6F856AD27F41C620542BF663 /* Build configuration list for PBXProject "LongNoteDemo" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 603511F4F713DE6743C9E976;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FE5873E9884E39E385FE2AA9 /* XCLocalSwiftPackageReference "../.." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 11B272FF0C68C59A0E60B1E5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FCDBA82A5FFC4DA13A1B5B57 /* LongNoteDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		85E0557B4CB381063C863521 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				109ECD2584981FEE3407AC5D /* DraftListView.swift in Sources */,
+				4533ACB79D6CF683BB132E12 /* EditorScreen.swift in Sources */,
+				9803130FC1E1655E4C040ADD /* ExportView.swift in Sources */,
+				DE014362851CE90AF6B7C037 /* LongNoteDemoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DB99D32FC15F8ECAE5093E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册以保存导出的长图";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.longnote.demo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4979D8686C22615B6F8548F7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		9ECABF06BC10F75A45739587 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BDC296B78646E0DC6EC32385 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册以保存导出的长图";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.longnote.demo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6F856AD27F41C620542BF663 /* Build configuration list for PBXProject "LongNoteDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4979D8686C22615B6F8548F7 /* Debug */,
+				9ECABF06BC10F75A45739587 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A5150F9D9463B2AD71EE46F2 /* Build configuration list for PBXNativeTarget "LongNoteDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDC296B78646E0DC6EC32385 /* Debug */,
+				1DB99D32FC15F8ECAE5093E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FE5873E9884E39E385FE2AA9 /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E161171EF5C40E6545E6095F /* LongNote */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LongNote;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 853A943286142225618C7631 /* Project object */;
+}

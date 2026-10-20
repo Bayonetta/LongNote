@@ -1,0 +1,36 @@
+# XcodeGen manifest for the LongNoteDemo app.
+#
+# To generate an Xcode project (requires XcodeGen: https://github.com/yonaskolb/XcodeGen):
+#   brew install xcodegen
+#   cd Examples/LongNoteDemo
+#   xcodegen generate
+#   open LongNoteDemo.xcodeproj
+#
+# The LongNote package is referenced by local path (the repo root), so no network
+# fetch is needed.
+name: LongNoteDemo
+options:
+  bundleIdPrefix: com.longnote
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+packages:
+  LongNote:
+    path: ../..
+targets:
+  LongNoteDemo:
+    type: application
+    platform: iOS
+    sources:
+      - LongNoteDemo
+    dependencies:
+      - package: LongNote
+        product: LongNote
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.longnote.demo
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: LongNote needs photo library access to save exported long images
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
