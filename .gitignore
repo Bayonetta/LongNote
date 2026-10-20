@@ -5,6 +5,7 @@ Package.resolved
 
 # Local AI-agent settings (never publish)
 .claude/
+.workbuddy-ai/
 
 # Xcode
 *.xcodeproj/xcuserdata/
