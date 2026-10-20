@@ -1,0 +1,27 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Local AI-agent settings (never publish)
+.claude/
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+
+# CocoaPods (not used, but harmless to ignore)
+Pods/
+
+# macOS/Windows build junk
+.DS_Store
+build/
+*.exe
+*.o
+*.ilk
+*.pdb
