@@ -11,7 +11,12 @@
     /// agree — and a paragraph that carries no explicit font still renders at
     /// its kind's size (H1 = 22 pt, quote = 15 pt, …).
     public func styledText(_ kind: ParagraphKind) -> NSAttributedString {
-      let base = kind.baseAttributes
+      // Line spacing belongs to the block too, so every paragraph of a kind
+      // breathes the same way (original kLineHeight*).
+      let paragraphStyle = NSMutableParagraphStyle()
+      paragraphStyle.lineSpacing = kind.lineSpacing
+      var base = kind.baseAttributes
+      base[.paragraphStyle] = paragraphStyle
       let result = NSMutableAttributedString()
       for run in runs {
         var attributes = base

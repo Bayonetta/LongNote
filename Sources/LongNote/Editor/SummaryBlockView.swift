@@ -14,13 +14,13 @@
       } label: {
         HStack(spacing: 8) {
           Text(document.article.summary ?? "Add a summary (optional)")
-            .font(.system(size: TextStyle.metaFontSize))
+            .font(.system(size: TextStyle.summaryFontSize))
             .foregroundStyle(
               document.article.summary == nil
                 ? TextStyle.placeholderColor.color
                 : TextStyle.secondaryTextColor.color
             )
-            .lineLimit(3)
+            .lineLimit(4)
             .multilineTextAlignment(.leading)
           Spacer(minLength: 0)
         }

@@ -33,6 +33,11 @@
       TextStyle.textColor.uiColor
     }
 
+    /// Extra leading between lines of this block (original `kLineHeight*`).
+    public var lineSpacing: CGFloat {
+      self == .quote ? TextStyle.lineSpacingQuote : TextStyle.lineSpacingText
+    }
+
     /// Default typing attributes for fresh text of this kind.
     public var baseAttributes: [NSAttributedString.Key: Any] {
       [.font: baseFont, .foregroundColor: baseColor]

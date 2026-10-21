@@ -48,18 +48,25 @@
       return action.1
     }
 
-    private var verticalPadding: CGFloat {
-      if paragraph.kind == .list, paragraph.isLastInList {
-        return (TextStyle.paragraphSpacing + TextStyle.listLastSpacing) / 2
+    private var isQuote: Bool { paragraph.kind == .quote }
+    private var isList: Bool { paragraph.kind == .list }
+
+    /// The original editor puts the gap *below* each paragraph only
+    /// (`kEdgeInsets*` bottom): 30 pt for text blocks, `kLineHeightText` (8 pt)
+    /// between list items, and 30 pt again after the last item of a run.
+    private var bottomSpacing: CGFloat {
+      if isQuote { return TextStyle.paragraphSpacing + 3 }
+      if isList {
+        return paragraph.isLastInList ? TextStyle.listLastSpacing : TextStyle.listItemSpacing
       }
-      return TextStyle.paragraphSpacing / 2
+      return TextStyle.paragraphSpacing
     }
 
     var body: some View {
-      HStack(alignment: .top, spacing: 10) {
-        if paragraph.kind == .quote {
+      HStack(alignment: .top, spacing: isQuote ? 14 : 10) {
+        if isQuote {
           quoteBar
-        } else if paragraph.kind == .list {
+        } else if isList {
           bullet
         }
 
@@ -91,8 +98,10 @@
         .frame(height: height)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.horizontal, TextStyle.editorHorizontalInset)
-      .padding(.vertical, verticalPadding)
+      .padding(.leading, isQuote ? TextStyle.quoteInset : TextStyle.editorHorizontalInset)
+      .padding(.trailing, isQuote ? TextStyle.quoteRightInset : TextStyle.editorHorizontalInset)
+      .padding(.top, isQuote ? 3 : 0)
+      .padding(.bottom, bottomSpacing)
     }
 
     private var quoteBar: some View {
@@ -108,7 +117,7 @@
         .font(.system(size: TextStyle.listFontSize, weight: .medium))
         .foregroundStyle(TextStyle.textColor.color)
         .padding(.top, 2)
-        .frame(width: 16)
+        .frame(width: 22)
     }
 
     /// Rough first-frame height so the row isn't zero-height before the text view

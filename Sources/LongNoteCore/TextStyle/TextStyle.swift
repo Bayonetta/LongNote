@@ -9,37 +9,58 @@ import Foundation
 public enum TextStyle {
   // MARK: Font sizes (points)
 
+  // Sizes mirror the original WeicoArticle constants (kFontSize*).
+
   /// The article title field at the top of the screen.
-  public static let articleTitleFontSize: CGFloat = 26
+  public static let articleTitleFontSize: CGFloat = 21
   /// In-body main heading (H1).
-  public static let heading1FontSize: CGFloat = 22
+  public static let heading1FontSize: CGFloat = 20
   /// In-body sub-heading (H2).
   public static let heading2FontSize: CGFloat = 19
   /// Regular body text.
-  public static let bodyFontSize: CGFloat = 16
+  public static let bodyFontSize: CGFloat = 18
+  /// The summary / lede row.
+  public static let summaryFontSize: CGFloat = 17
   /// Block quote text.
-  public static let quoteFontSize: CGFloat = 15
+  public static let quoteFontSize: CGFloat = 17
   /// List item text.
-  public static let listFontSize: CGFloat = 16
+  public static let listFontSize: CGFloat = 18
   /// Image caption.
   public static let captionFontSize: CGFloat = 13
   /// Article date line and the export watermark.
   public static let metaFontSize: CGFloat = 12
 
+  // MARK: Line spacing (inside one paragraph; original kLineHeight*)
+
+  /// Extra leading between lines of body / heading / list text.
+  public static let lineSpacingText: CGFloat = 8
+  /// Extra leading between quote lines.
+  public static let lineSpacingQuote: CGFloat = 7
+  /// Extra leading under an image caption.
+  public static let lineSpacingCaption: CGFloat = 5
+
   // MARK: Spacing (points)
 
-  /// Horizontal padding inside the editor for text paragraphs.
-  public static let editorHorizontalInset: CGFloat = 16
-  /// Vertical gap between two regular paragraphs.
-  public static let paragraphSpacing: CGFloat = 14
-  /// Extra bottom gap after the last item of a list run.
-  public static let listLastSpacing: CGFloat = 26
+  /// Horizontal padding inside the editor for text paragraphs (original
+  /// `kMarginTextLeft` = 15 − 5).
+  public static let editorHorizontalInset: CGFloat = 10
+  /// Left inset of the quote bar (original `kMarginQuoteLeft` = 20 + 4 + 19 − 5).
+  public static let quoteInset: CGFloat = 20
+  /// Right inset of quote text (original `kMarginQuoteRight` = 28 − 5).
+  public static let quoteRightInset: CGFloat = 23
+  /// Quote bar width.
+  public static let quoteBarWidth: CGFloat = 4
+  /// Gap *below* every paragraph (original `kMarginParagraph` = 30).
+  public static let paragraphSpacing: CGFloat = 30
+  /// Gap below a list item that is followed by another item (original
+  /// `kLineHeightText` = 8).
+  public static let listItemSpacing: CGFloat = 8
+  /// Gap below the last item of a list run (original `kEdgeInsetsUnorderLast`).
+  public static let listLastSpacing: CGFloat = 30
   /// Gap above/below dividers and image blocks.
   public static let blockSpacing: CGFloat = 18
   /// Horizontal inset of a divider line.
   public static let dividerInset: CGFloat = 32
-  /// Quote bar width.
-  public static let quoteBarWidth: CGFloat = 3
 
   // MARK: Colors (RGBA in 0...1)
 

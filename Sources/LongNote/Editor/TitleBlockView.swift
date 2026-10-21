@@ -22,8 +22,10 @@
                 document.updateTitle(newValue)
               }
             }
-          )
+          ),
+          axis: .vertical
         )
+        .lineLimit(1...2)
         .font(.system(size: TextStyle.articleTitleFontSize, weight: .bold))
         .foregroundStyle(TextStyle.textColor.color)
         .frame(maxWidth: .infinity, alignment: .leading)

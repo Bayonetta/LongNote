@@ -224,18 +224,15 @@
       // MARK: Height
 
       func reportHeight(_ textView: UITextView) {
-        // Measure at the view's *current* width. On the first layout pass the
-        // text container can still carry a stale (or zero) width, which makes a
-        // wrapping paragraph measure as a single line and clip its second line.
+        // Ask the text view itself how tall it needs to be at its current
+        // width. Measuring the layout manager directly can use a stale text
+        // container width (clipping a wrapped line) and mutating the container
+        // size fights the view's own sizing — which made list rows bounce
+        // between two heights while laying out.
         let width = textView.bounds.width
         guard width > 0 else { return }
-        textView.textContainer.size = CGSize(width: width, height: .greatestFiniteMagnitude)
-
-        let layoutManager = textView.layoutManager
-        layoutManager.ensureLayout(for: textView.textContainer)
-        let used = layoutManager.usedRect(for: textView.textContainer)
-        let inset = textView.textContainerInset
-        let height = ceil(used.height + inset.top + inset.bottom)
+        let fitting = textView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        let height = ceil(fitting.height)
         guard height != lastReportedHeight || width != lastReportedWidth else { return }
         lastReportedHeight = height
         lastReportedWidth = width
