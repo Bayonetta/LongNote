@@ -2,7 +2,7 @@
 
 [English](README.md) · **[日本語](README.ja.md)** · [中文](README.zh-CN.md)
 
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml)
+[![CI](https://github.com/Bayonetta/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/Bayonetta/LongNote/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue.svg)
