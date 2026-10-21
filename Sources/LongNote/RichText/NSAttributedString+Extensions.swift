@@ -34,4 +34,12 @@
       AttributedString(uiText)
     }
   }
+
+  extension NSAttributedString {
+    /// SwiftUI `AttributedString` view of this text (used by the renderer after
+    /// block styling has been applied).
+    public var swiftUI: AttributedString {
+      AttributedString(self)
+    }
+  }
 #endif

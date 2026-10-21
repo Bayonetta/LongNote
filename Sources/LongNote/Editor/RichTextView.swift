@@ -154,6 +154,7 @@
       var isProgrammaticChange = false
       var lastAppliedAction: RichTextAction?
       private var lastReportedHeight: CGFloat = -1
+      private var lastReportedWidth: CGFloat = -1
 
       init(_ representable: RichTextView) {
         self.representable = representable
@@ -223,13 +224,21 @@
       // MARK: Height
 
       func reportHeight(_ textView: UITextView) {
+        // Measure at the view's *current* width. On the first layout pass the
+        // text container can still carry a stale (or zero) width, which makes a
+        // wrapping paragraph measure as a single line and clip its second line.
+        let width = textView.bounds.width
+        guard width > 0 else { return }
+        textView.textContainer.size = CGSize(width: width, height: .greatestFiniteMagnitude)
+
         let layoutManager = textView.layoutManager
         layoutManager.ensureLayout(for: textView.textContainer)
         let used = layoutManager.usedRect(for: textView.textContainer)
         let inset = textView.textContainerInset
         let height = ceil(used.height + inset.top + inset.bottom)
-        guard height != lastReportedHeight else { return }
+        guard height != lastReportedHeight || width != lastReportedWidth else { return }
         lastReportedHeight = height
+        lastReportedWidth = width
         representable.onHeightChange?(height)
       }
     }

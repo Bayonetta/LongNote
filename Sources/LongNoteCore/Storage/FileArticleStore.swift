@@ -128,6 +128,9 @@ public final class FileArticleStore: ArticleStore, @unchecked Sendable {
 
   private func load(from url: URL) throws -> Article {
     let data = try Data(contentsOf: url)
-    return try decoder.decode(Article.self, from: data)
+    let article = try decoder.decode(Article.self, from: data)
+    // Older documents are brought up to the current schema on read; the next
+    // save writes them back in the new shape.
+    return article.schemaVersion < Article.currentSchemaVersion ? article.migrated() : article
   }
 }

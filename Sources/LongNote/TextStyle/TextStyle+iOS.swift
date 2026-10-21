@@ -4,12 +4,8 @@
   import LongNoteCore
 
   extension TextStyle.RGBColor {
-    /// UIKit color used by the editor.
-    public var uiColor: UIColor {
-      UIColor(red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(alpha))
-    }
-
-    /// SwiftUI color used by the renderer.
+    /// SwiftUI color used by the renderer. (`uiColor` lives in the core, so the
+    /// storage codec can use it too.)
     public var color: Color {
       Color(red: red, green: green, blue: blue).opacity(alpha)
     }

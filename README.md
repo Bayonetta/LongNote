@@ -47,7 +47,7 @@ Swift Package Manager で配布できる、長文章（ロングリード）向�
 ### 技術的なアピールポイント
 
 **1. 編集操作をすべて純関数として実装**
-Return・行頭 Backspace・複数行ペーストの分割・スタイル変換など、キーボード操作による段落の変化を `[Paragraph] -> ParagraphMutation.Result` の純関数に集約しました。UIKit に一切依存しないため、Linux / Windows を含む任意のプラットフォームで単体テストが実行できます（41 テスト）。
+Return・行頭 Backspace・複数行ペーストの分割・スタイル変換など、キーボード操作による段落の変化を `[Paragraph] -> ParagraphMutation.Result` の純関数に集約しました。UIKit に一切依存しないため、Linux / Windows を含む任意のプラットフォームで単体テストが実行できます（55 テスト）。
 
 **2. SwiftUI × UITextView 橋渡し時のカーソルジャンプを解消**
 段落ごとに `UITextView` を配置し、外部モデルと TextKit 内のテキストが**実際に異なるときだけ**テキストを再設定します。編集結果は delegate 経由で戻すため、双方向バインディングは使いません。行の高さは `layoutManager.usedRect` で計測して SwiftUI 側の行高さに反映しています。
@@ -56,7 +56,7 @@ Return・行頭 Backspace・複数行ペーストの分割・スタイル変換�
 `UIViewRepresentable` には `@FocusState` を直接バインドできません。そこでフォーカス中の段落 ID と、分割・結合後のカーソル位置を運ぶコーディネータを実装し、命令的に first responder を操作しています。
 
 **4. リッチテキストのロスレスな永続化**
-`NSKeyedArchive` を JSON 内に埋め込む `CodableAttributedString` により、書体・色・リンクを含む富文本内容が保存・読み込み後も完全に復元されます（属性のないテキストはプレーン文字列として保存し、JSON を小さく保ちます）。
+`CodableAttributedString` はリッチテキストを**セマンティックな run**（テキスト + 太字 / 斜体 / 取り消し線 / 色 / リンク）として保存します。`NSKeyedArchive` の不透明なブロブではなく可読な JSON なので、差分・検索・他言語での読み取りが可能です。v1 のアーカイブ形式も読み込め、次回保存時に v2 へ書き換わります（詳細は `FORMAT.md`）。
 
 **5. 長画像書き出しのメモリ最適化**
 数万字の記事を `ImageRenderer` で一度にオフスクリーン描画すると、数万ポイントの高さになりメモリが枯渇します。事前に `sizeThatFits` で計測し、単発描画とタイル分割描画を使い分け、安全なしきい値を超える場合はタイルセットでの共有を促す設計にしました。
@@ -156,8 +156,17 @@ open LongNoteDemo.xcodeproj
 **保存形式。** `FileArticleStore` は以下を書き出します：
 
 ```
-Documents/Articles/<uuid>/article.json   ← ドキュメント全体（Codable）
+Documents/Articles/<uuid>/article.json   ← ドキュメント全体（Codable, schemaVersion: 2）
                           images/…        ← ファイル名で参照される画像データ
+```
+
+`article.json` のリッチテキストは次のいずれかです（`FORMAT.md` に全仕様）:
+
+```json
+"text": { "string": "スタイルなしのテキスト" }
+"text": { "runs": [ { "text": "普通の " },
+                    { "text": "太字", "bold": true },
+                    { "text": "リンク", "link": "https://…" } ] }
 ```
 
 **長画像のメモリ対策。** `ImageRenderer` は `scale` でオフスクリーン描画します。3 万字の記事は数万ポイントの高さになり、そのままではメモリが爆発します。`ArticleImageRenderer` は (1) `sizeThatFits` で事前計測し、(2) `maxSingleHeight`（既定 5000 pt）に収まる場合は一括描画、(3) 超える場合は `maxTileHeight` のタイルに分割して描画・連結、(4) 連結後も安全なピクセル高を超える場合は `render(_:)` が `nil` を返し、呼び出し側に `renderTiles(_:)` を提示する、という流れです。
@@ -185,13 +194,13 @@ You get the parts that made the original editor great:
 
 ### Technical highlights
 
-**1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (41 tests) on any platform, including Linux and Windows.
+**1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (55 tests) on any platform, including Linux and Windows.
 
 **2. No cursor jumps in the SwiftUI ↔ UITextView bridge.** One `UITextView` per paragraph, bridged through a `UIViewRepresentable` (`RichTextView`). The text is re-set only when the external value actually differs from the text view's content; edits flow back through the delegate, never through two-way binding. Row height comes from `layoutManager.usedRect`, applied as an explicit height — no cached heights.
 
 **3. `@FocusState` can't reach a `UIViewRepresentable` — so a `FocusCoordinator` does.** It records the focused paragraph id, drives first responder per text view, and carries a requested cursor position after splits and merges.
 
-**4. Lossless rich-text persistence.** `CodableAttributedString` embeds `NSKeyedArchive` inside the JSON, so fonts, colors and links round-trip losslessly (attribute-free text is stored as plain strings to keep the JSON compact and portable).
+**4. Portable rich-text persistence.** `CodableAttributedString` stores rich text as **semantic runs** — text plus bold / italic / strikethrough / colour / link — instead of an opaque `NSKeyedArchive` blob. The document JSON stays readable, diffable and searchable, and works outside Apple platforms. v1 archives still decode and are rewritten as v2 on the next save (see `FORMAT.md`).
 
 **5. Memory-safe long-image export.** A 30k-character article is tens of thousands of points tall — rendering it whole would exhaust memory. `ArticleImageRenderer` measures first (`sizeThatFits`), renders in one shot when it fits `maxSingleHeight` (default 5000 pt), otherwise renders `maxTileHeight` tiles and stitches them, and returns `nil` when even the stitched image would exceed a safe pixel height so callers can offer `renderTiles(_:)` as a set instead.
 

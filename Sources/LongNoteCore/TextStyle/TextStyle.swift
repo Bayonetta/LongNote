@@ -55,6 +55,9 @@ public enum TextStyle {
 
   /// A pure RGBA color, platform-neutral so both UIKit and SwiftUI can build
   /// their native color from the same numbers.
+  ///
+  /// Encodes as a compact `[r, g, b, a]` array so a run reads as
+  /// `{ "text": "…", "color": [0.16, 0.5, 0.97, 1] }` in the document JSON.
   public struct RGBColor: Codable, Equatable, Sendable {
     public var red: Double
     public var green: Double
@@ -74,6 +77,24 @@ public enum TextStyle {
       self.green = Double((hex >> 8) & 0xFF) / 255
       self.blue = Double(hex & 0xFF) / 255
       self.alpha = alpha
+    }
+
+    // MARK: Codable (compact array form)
+
+    public init(from decoder: Decoder) throws {
+      var container = try decoder.unkeyedContainer()
+      red = try container.decode(Double.self)
+      green = try container.decode(Double.self)
+      blue = try container.decode(Double.self)
+      alpha = container.isAtEnd ? 1 : try container.decode(Double.self)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+      var container = encoder.unkeyedContainer()
+      try container.encode(red)
+      try container.encode(green)
+      try container.encode(blue)
+      try container.encode(alpha)
     }
   }
 }

@@ -64,7 +64,7 @@
         }
 
         RichTextView(
-          text: paragraph.text.uiText,
+          text: paragraph.text.styledText(paragraph.kind),
           placeholder: placeholder,
           isFocused: isFocused,
           shouldResign: document.focus.focusedParagraphID == nil,

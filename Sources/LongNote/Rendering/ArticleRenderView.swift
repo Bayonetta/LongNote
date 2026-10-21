@@ -175,36 +175,10 @@
       return TextStyle.paragraphSpacing / 2
     }
 
-    /// Renders the paragraph's stored rich text, filling any run that lacks a
-    /// font/color attribute with the paragraph kind's defaults (safety net for
-    /// text that predates editor styling).
+    /// Renders the paragraph's rich text with the block's typography applied
+    /// (shared with the editor through `styledText(_:)`, so both agree).
     private func renderText(for paragraph: Paragraph) -> AttributedString {
-      var attributed = paragraph.text.swiftUI
-      let fontlessRanges = attributed.runs
-        .filter { $0.attributes.font == nil }
-        .map(\.range)
-      let colorlessRanges = attributed.runs
-        .filter { $0.attributes.foregroundColor == nil }
-        .map(\.range)
-
-      for range in fontlessRanges {
-        attributed[range].font = .system(
-          size: paragraph.kind.baseFont.pointSize,
-          weight: Self.weight(for: paragraph.kind)
-        )
-      }
-      for range in colorlessRanges {
-        attributed[range].foregroundColor = TextStyle.textColor.color
-      }
-      return attributed
-    }
-
-    private static func weight(for kind: ParagraphKind) -> Font.Weight {
-      switch kind {
-      case .title: return .bold
-      case .header: return .semibold
-      default: return .regular
-      }
+      paragraph.text.styledText(paragraph.kind).swiftUI
     }
 
     // MARK: - Footer

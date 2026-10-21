@@ -3,17 +3,25 @@ import XCTest
 
 @testable import LongNoteCore
 
+#if canImport(UIKit)
+  import UIKit
+#elseif canImport(AppKit)
+  import AppKit
+#endif
+
 /// Round-trip of a full `Article` document (metadata + paragraphs) through the
 /// same JSON codec `FileArticleStore` uses.
 final class ArticleCodableTests: XCTestCase {
 
   func testFullDocumentRoundTrip() throws {
     let richText = NSMutableAttributedString(string: "First body paragraph")
-    richText.addAttribute(
-      NSAttributedString.Key("ln.test.mark"),
-      value: NSNumber(value: true),
-      range: NSRange(location: 0, length: 2)
-    )
+    #if canImport(UIKit)
+      richText.addAttribute(
+        .font, value: UIFont.boldSystemFont(ofSize: 16), range: NSRange(location: 0, length: 5))
+    #elseif canImport(AppKit)
+      richText.addAttribute(
+        .font, value: NSFont.boldSystemFont(ofSize: 16), range: NSRange(location: 0, length: 5))
+    #endif
 
     let article = Article(
       title: "My Title",
@@ -45,13 +53,9 @@ final class ArticleCodableTests: XCTestCase {
     XCTAssertEqual(decoded.paragraphs.count, 6)
     XCTAssertEqual(decoded.paragraphs[4].image?.caption, "Figure caption")
     XCTAssertEqual(decoded.paragraphs[5].kind, .divider)
-    // Rich text run survived.
-    XCTAssertNotNil(
-      decoded.paragraphs[1].text.uiText.attribute(
-        NSAttributedString.Key("ln.test.mark"),
-        at: 0,
-        effectiveRange: nil
-      ))
+    // Rich text run survived as a semantic run.
+    XCTAssertEqual(decoded.paragraphs[1].text.runs.first?.text, "First")
+    XCTAssertEqual(decoded.paragraphs[1].text.runs.first?.bold, true)
   }
 
   func testImageCount() {
