@@ -15,6 +15,7 @@
       // breathes the same way (original kLineHeight*).
       let paragraphStyle = NSMutableParagraphStyle()
       paragraphStyle.lineSpacing = kind.lineSpacing
+      paragraphStyle.alignment = Self.alignment(for: string)
       var base = kind.baseAttributes
       base[.paragraphStyle] = paragraphStyle
       let result = NSMutableAttributedString()
@@ -36,6 +37,25 @@
         result.append(NSAttributedString(string: run.text, attributes: attributes))
       }
       return result
+    }
+  }
+
+  extension CodableAttributedString {
+    /// The original justifies every paragraph. That reads well for CJK text but
+    /// produces rivers in a narrow column of Latin text, so justification is
+    /// kept for CJK-heavy content and Latin falls back to natural alignment.
+    fileprivate static func alignment(for text: String) -> NSTextAlignment {
+      guard !text.isEmpty else { return .natural }
+      var cjk = 0
+      for scalar in text.unicodeScalars {
+        switch scalar.value {
+        case 0x3040...0x30FF, 0x3400...0x4DBF, 0x4E00...0x9FFF, 0xF900...0xFAFF:
+          cjk += 1
+        default:
+          break
+        }
+      }
+      return cjk * 3 >= text.unicodeScalars.count ? .justified : .natural
     }
   }
 

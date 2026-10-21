@@ -30,7 +30,7 @@
     }
 
     public var baseColor: UIColor {
-      TextStyle.textColor.uiColor
+      self == .quote ? TextStyle.quoteTextColor.uiColor : TextStyle.textColor.uiColor
     }
 
     /// Extra leading between lines of this block (original `kLineHeight*`).

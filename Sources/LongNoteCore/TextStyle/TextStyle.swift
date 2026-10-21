@@ -32,10 +32,11 @@ public enum TextStyle {
 
   // MARK: Line spacing (inside one paragraph; original kLineHeight*)
 
-  /// Extra leading between lines of body / heading / list text.
-  public static let lineSpacingText: CGFloat = 8
-  /// Extra leading between quote lines.
-  public static let lineSpacingQuote: CGFloat = 7
+  /// Extra leading between lines of body / heading / list text (the original
+  /// stores `NSLineSpacing = 9` on every paragraph).
+  public static let lineSpacingText: CGFloat = 9
+  /// Extra leading between quote lines (also 9 in the original's archives).
+  public static let lineSpacingQuote: CGFloat = 9
   /// Extra leading under an image caption.
   public static let lineSpacingCaption: CGFloat = 5
 
@@ -64,7 +65,10 @@ public enum TextStyle {
 
   // MARK: Colors (RGBA in 0...1)
 
-  public static let textColor = RGBColor(red: 0.13, green: 0.13, blue: 0.15, alpha: 1)
+  /// Body text (original `kFontColorText` = white 0.2).
+  public static let textColor = RGBColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1)
+  /// Block-quote text (the original stores white 0.576).
+  public static let quoteTextColor = RGBColor(red: 0.576, green: 0.576, blue: 0.576, alpha: 1)
   public static let secondaryTextColor = RGBColor(red: 0.55, green: 0.55, blue: 0.58, alpha: 1)
   public static let placeholderColor = RGBColor(red: 0.78, green: 0.78, blue: 0.80, alpha: 1)
   public static let dividerColor = RGBColor(red: 0.89, green: 0.89, blue: 0.90, alpha: 1)
