@@ -94,6 +94,16 @@
 
     // MARK: - Toolbar actions
 
+    /// Focus the last editable paragraph, mirroring the original editor's
+    /// `focuseOnLastLine` — toolbar buttons stay usable even when no paragraph
+    /// currently holds the caret.
+    @discardableResult
+    public func focusLastTextParagraph() -> Paragraph.ID? {
+      guard let last = article.paragraphs.last(where: { $0.kind.isTextKind }) else { return nil }
+      focus.focus(last.id, selection: NSRange(location: 0, length: 0))
+      return last.id
+    }
+
     /// Change a paragraph's kind (H1 / H2 / body / quote / list). The paragraph
     /// view also restyles the whole text to the kind's base font/color.
     public func setKind(_ kind: ParagraphKind, for id: Paragraph.ID) {

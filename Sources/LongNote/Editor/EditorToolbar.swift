@@ -3,15 +3,15 @@
   import PhotosUI
   import LongNoteCore
 
-  /// The main bottom toolbar: paragraph style menu, insert image, insert divider,
-  /// link, and text color. Every item pairs its SF Symbol with a short caption
-  /// so the bar is self-explanatory.
+  /// The main bottom toolbar — a faithful SwiftUI rebuild of the original
+  /// WeicoNote compose bar: seven equal icon-only slots (46 pt tall) in the
+  /// original order — photo, form (paragraph style), quote, list, link,
+  /// divider, more — with SF Symbols standing in for the original artwork.
   @MainActor
   struct EditorToolbar: View {
     let document: ArticleDocument
 
     @State private var selectedImageItem: PhotosPickerItem?
-    @State private var showColorPanel = false
     @State private var showLinkPrompt = false
     @State private var linkDraft = ""
     @State private var showImageLimitAlert = false
@@ -20,16 +20,30 @@
       document.focus.focusedParagraphID
     }
 
+    private var focusedKind: ParagraphKind? {
+      document.paragraph(focusedID)?.kind
+    }
+
+    /// The paragraph a toolbar action applies to. Falls back to the last text
+    /// paragraph, mirroring the original editor's `focuseOnLastLine`, so the
+    /// bar works even when nothing holds the caret.
+    private func targetID() -> Paragraph.ID? {
+      document.focus.focusedParagraphID ?? document.focusLastTextParagraph()
+    }
+
     var body: some View {
-      HStack(spacing: 4) {
-        styleMenu
+      HStack(spacing: 0) {
         imagePicker
-        dividerButton
+        styleMenu
+        quoteButton
+        listButton
         linkButton
-        colorButton
+        dividerButton
+        moreMenu
       }
-      .padding(.horizontal, 8)
-      .padding(.bottom, 4)
+      .frame(height: 46)
+      .background(.bar)
+      .overlay(alignment: .top) { Divider() }
       .onChange(of: selectedImageItem) { _, item in
         guard let item else { return }
         Task {
@@ -54,94 +68,122 @@
       .alert("Up to 30 images", isPresented: $showImageLimitAlert) {
         Button("OK", role: .cancel) {}
       }
-      .popover(isPresented: $showColorPanel, arrowEdge: .bottom) {
-        ColorPaletteView { color in
-          document.enqueueTextAction(.setColor(color))
-          showColorPanel = false
-        }
-        .frame(width: 260)
-        .presentationCompactAdaptation(.popover)
-      }
     }
 
-    // MARK: - Buttons
+    // MARK: - Slots (original order)
 
+    /// Photo — opens the system photo picker.
+    private var imagePicker: some View {
+      PhotosPicker(selection: $selectedImageItem, matching: .images) {
+        barIcon("photo")
+      }
+      .accessibilityLabel("Insert image")
+    }
+
+    /// Form — paragraph style menu (title / heading / body / quote / list).
     private var styleMenu: some View {
       Menu {
         ForEach(ParagraphKind.styleKinds, id: \.self) { kind in
           Button {
-            guard let id = focusedID else { return }
+            guard let id = targetID() else { return }
             document.setKind(kind, for: id)
           } label: {
-            Label(styleName(kind), systemImage: styleIcon(kind))
+            if focusedKind == kind {
+              Label(styleName(kind), systemImage: "checkmark")
+            } else {
+              Text(styleName(kind))
+            }
           }
         }
       } label: {
-        toolbarItem("textformat.size", caption: "Style")
+        barIcon("textformat.size")
       }
-      .disabled(focusedID == nil)
+      .accessibilityLabel("Paragraph style")
     }
 
-    private var imagePicker: some View {
-      PhotosPicker(selection: $selectedImageItem, matching: .images) {
-        toolbarItem("photo.on.rectangle.angled", caption: "Image")
-      }
-      .disabled(focusedID == nil)
-    }
-
-    private var dividerButton: some View {
+    /// Quote — toggles the block-quote style on the focused paragraph.
+    private var quoteButton: some View {
       Button {
-        guard let id = focusedID else { return }
-        document.insertDivider(after: id)
+        guard let id = targetID() else { return }
+        document.setKind(focusedKind == .quote ? .body : .quote, for: id)
       } label: {
-        toolbarItem("minus", caption: "Divider")
+        barIcon("text.quote", active: focusedKind == .quote)
       }
-      .disabled(focusedID == nil)
+      .accessibilityLabel("Quote")
     }
 
+    /// List — toggles the list style on the focused paragraph.
+    private var listButton: some View {
+      Button {
+        guard let id = targetID() else { return }
+        document.setKind(focusedKind == .list ? .body : .list, for: id)
+      } label: {
+        barIcon("list.bullet", active: focusedKind == .list)
+      }
+      .accessibilityLabel("List")
+    }
+
+    /// Link — attaches a URL to the current selection.
     private var linkButton: some View {
       Button {
-        guard focusedID != nil else { return }
+        guard targetID() != nil else { return }
         showLinkPrompt = true
       } label: {
-        toolbarItem("link", caption: "Link")
+        barIcon("link")
       }
-      .disabled(focusedID == nil)
+      .accessibilityLabel("Add link")
     }
 
-    private var colorButton: some View {
+    /// Line — inserts a divider below the focused paragraph.
+    private var dividerButton: some View {
       Button {
-        guard focusedID != nil else { return }
-        showColorPanel = true
+        guard let id = targetID() else { return }
+        document.insertDivider(after: id)
       } label: {
-        toolbarItem("paintpalette", caption: "Color")
+        barIcon("minus")
       }
-      .disabled(focusedID == nil)
+      .accessibilityLabel("Insert divider")
     }
 
-    /// One toolbar cell: SF Symbol above a small caption, filling its slot.
-    /// The icon box has a fixed height so thin symbols (e.g. `minus`) keep the
-    /// captions on one baseline.
-    private func toolbarItem(_ icon: String, caption: String) -> some View {
-      VStack(spacing: 3) {
-        Image(systemName: icon)
-          .font(.system(size: 17, weight: .medium))
-          .frame(height: 22)
-        Text(caption)
-          .font(.system(size: 10))
+    /// More — the original insert panel. The monetisation entries (tip / paid
+    /// reading) and "insert article" are publishing features outside this
+    /// library's scope, so the menu keeps the insertable pieces it supports.
+    private var moreMenu: some View {
+      Menu {
+        Button {
+          document.isPresentingSummary = true
+        } label: {
+          Label("Summary", systemImage: "text.alignleft")
+        }
+        Button {
+          guard let id = targetID() else { return }
+          document.insertDivider(after: id)
+        } label: {
+          Label("Divider", systemImage: "minus")
+        }
+      } label: {
+        barIcon("ellipsis")
       }
-      .frame(maxWidth: .infinity)
-      .accessibilityLabel(caption)
+      .accessibilityLabel("More")
     }
 
-    // MARK: - Helpers
+    // MARK: - Pieces
+
+    /// One icon-only slot that fills its share of the 46 pt bar.
+    private func barIcon(_ name: String, active: Bool = false) -> some View {
+      Image(systemName: name)
+        .font(.system(size: 19))
+        .foregroundStyle(active ? TextStyle.accentColor.color : TextStyle.textColor.color)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+    }
 
     private func insertPickedImage(_ data: Data) {
       guard document.article.imageCount < 30 else {
         showImageLimitAlert = true
         return
       }
-      guard let id = focusedID else { return }
+      guard let id = targetID() else { return }
       document.insertImage(data, after: id)
     }
 
@@ -152,16 +194,6 @@
       case .quote: return "Quote"
       case .list: return "List"
       default: return "Body"
-      }
-    }
-
-    private func styleIcon(_ kind: ParagraphKind) -> String {
-      switch kind {
-      case .title: return "textformat.size.larger"
-      case .header: return "textformat.size"
-      case .quote: return "text.quote"
-      case .list: return "list.bullet"
-      default: return "textformat"
       }
     }
   }

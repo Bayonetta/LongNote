@@ -3,9 +3,10 @@
   import UIKit
   import LongNoteCore
 
-  /// Floating selection toolbar shown while text is selected: bold, strikethrough,
-  /// color, and link. Button active states reflect the attributes at the selection
-  /// start (`document.focusedSelectionAttributes`).
+  /// The selection bar that slides in above the main toolbar while text is
+  /// selected — four equal slots (46 pt tall) in the original order: bold,
+  /// strikethrough, link, color. The color slot carries a small swatch of the
+  /// current text color, as the original did.
   @MainActor
   struct SelectedToolbar: View {
     let document: ArticleDocument
@@ -28,28 +29,47 @@
       document.focusedSelectionAttributes[.link] != nil
     }
 
+    private var currentColor: Color {
+      (document.focusedSelectionAttributes[.foregroundColor] as? UIColor).map(Color.init)
+        ?? TextStyle.textColor.color
+    }
+
     var body: some View {
-      HStack(spacing: 20) {
-        button("bold", isActive: isBold) {
+      HStack(spacing: 0) {
+        Button {
           document.enqueueTextAction(.toggleBold)
+        } label: {
+          barIcon("bold", active: isBold)
         }
-        button("strikethrough", isActive: isStrikethrough) {
+        .accessibilityLabel("Bold")
+
+        Button {
           document.enqueueTextAction(.toggleStrikethrough)
+        } label: {
+          barIcon("strikethrough", active: isStrikethrough)
         }
-        button("paintpalette", isActive: false) {
-          showColorPanel = true
-        }
-        button("link", isActive: hasLink) {
+        .accessibilityLabel("Strikethrough")
+
+        Button {
           if hasLink {
             document.enqueueTextAction(.setLink(nil))
           } else {
             showLinkPrompt = true
           }
+        } label: {
+          barIcon("link", active: hasLink)
         }
+        .accessibilityLabel("Link")
+
+        Button {
+          showColorPanel = true
+        } label: {
+          colorIcon
+        }
+        .accessibilityLabel("Text color")
       }
-      .font(.system(size: 20))
-      .frame(maxWidth: .infinity)
-      .padding(.vertical, 2)
+      .frame(height: 46)
+      .background(.bar)
       .popover(isPresented: $showColorPanel, arrowEdge: .bottom) {
         ColorPaletteView { color in
           document.enqueueTextAction(.setColor(color))
@@ -72,12 +92,32 @@
       }
     }
 
-    private func button(_ icon: String, isActive: Bool, action: @escaping () -> Void) -> some View {
-      Button(action: action) {
-        Image(systemName: icon)
-          .foregroundStyle(isActive ? TextStyle.accentColor.color : TextStyle.textColor.color)
+    // MARK: - Pieces
+
+    private func barIcon(_ name: String, active: Bool) -> some View {
+      Image(systemName: name)
+        .font(.system(size: 19))
+        .foregroundStyle(active ? TextStyle.accentColor.color : TextStyle.textColor.color)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+    }
+
+    /// Palette symbol with the current text color shown as a swatch beneath it.
+    private var colorIcon: some View {
+      VStack(spacing: 3) {
+        Image(systemName: "paintpalette")
+          .font(.system(size: 19))
+        RoundedRectangle(cornerRadius: 1.5)
+          .fill(currentColor)
+          .frame(width: 18, height: 4)
+          .overlay(
+            RoundedRectangle(cornerRadius: 1.5)
+              .strokeBorder(Color.primary.opacity(0.15), lineWidth: 0.5)
+          )
       }
-      .accessibilityLabel(icon)
+      .foregroundStyle(TextStyle.textColor.color)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .contentShape(Rectangle())
     }
   }
 #endif

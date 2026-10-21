@@ -94,14 +94,13 @@
     // MARK: - Toolbar
 
     private var toolbar: some View {
-      VStack(spacing: 6) {
+      VStack(spacing: 0) {
         if document.hasSelectedText {
           SelectedToolbar(document: document)
+          Divider()
         }
         EditorToolbar(document: document)
       }
-      .padding(.top, 8)
-      .background(.bar)
     }
 
     private func scrollTo(_ id: Paragraph.ID, using proxy: ScrollViewProxy) {
