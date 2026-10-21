@@ -36,7 +36,7 @@ Swift Package Manager で配布できる、長文章（ロングリード）向�
 Return・行頭 Backspace・複数行ペーストの分割・スタイル変換など、キーボード操作による段落の変化を `[Paragraph] -> ParagraphMutation.Result` の純関数に集約しました。UIKit に一切依存しないため、Linux / Windows を含む任意のプラットフォームで単体テストが実行できます（55 テスト）。
 
 **2. SwiftUI × UITextView 橋渡し時のカーソルジャンプを解消**
-段落ごとに `UITextView` を配置し、外部モデルと TextKit 内のテキストが**実際に異なるときだけ**テキストを再設定します。編集結果は delegate 経由で戻すため、双方向バインディングは使いません。行の高さは `layoutManager.usedRect` で計測して SwiftUI 側の行高さに反映しています。
+段落ごとに `UITextView` を配置し、外部モデルと TextKit 内のテキストが**実際に異なるときだけ**テキストを再設定します。編集結果は delegate 経由で戻すため、双方向バインディングは使いません。行の高さは段落モデルから算出します（`ParagraphMetrics`）。スタックが解放した行でも高さが正しく、推定値と実測値の間で寸法が跳ねることもありません。
 
 **3. `@FocusState` の制約を `FocusCoordinator` で克服**
 `UIViewRepresentable` には `@FocusState` を直接バインドできません。そこでフォーカス中の段落 ID と、分割・結合後のカーソル位置を運ぶコーディネータを実装し、命令的に first responder を操作しています。

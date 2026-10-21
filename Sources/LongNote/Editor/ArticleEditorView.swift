@@ -28,7 +28,13 @@
       VStack(spacing: 0) {
         ScrollViewReader { proxy in
           ScrollView {
-            LazyVStack(spacing: 0) {
+            // A plain VStack, not a LazyVStack: row heights come from
+            // `ParagraphMetrics` (the model), and every row must be laid out so a
+            // paragraph that shrinks — after a Return split, say — releases its
+            // space immediately instead of reserving a gap until it scrolls back
+            // into view. Articles are tens of paragraphs, so the eager cost is
+            // negligible (the original editor computed every row height too).
+            VStack(spacing: 0) {
               CoverBlockView(document: document)
               TitleBlockView(document: document)
               SummaryBlockView(document: document)

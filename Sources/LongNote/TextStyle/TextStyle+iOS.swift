@@ -38,6 +38,24 @@
       self == .quote ? TextStyle.lineSpacingQuote : TextStyle.lineSpacingText
     }
 
+    /// Vertical insets of the paragraph's text view.
+    public var textInsets: UIEdgeInsets {
+      UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0)
+    }
+
+    /// Horizontal space the row spends around its text: the leading/trailing
+    /// padding plus the bullet or quote-bar column.
+    public var textHorizontalInset: CGFloat {
+      switch self {
+      case .quote:
+        return TextStyle.quoteInset + TextStyle.quoteRightInset + TextStyle.quoteBarWidth + 14
+      case .list:
+        return TextStyle.editorHorizontalInset * 2 + 22 + 10
+      default:
+        return TextStyle.editorHorizontalInset * 2
+      }
+    }
+
     /// Default typing attributes for fresh text of this kind.
     public var baseAttributes: [NSAttributedString.Key: Any] {
       [.font: baseFont, .foregroundColor: baseColor]

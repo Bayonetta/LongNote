@@ -10,14 +10,9 @@
     let document: ArticleDocument
     let paragraph: Paragraph
 
-    /// Current laid-out height, reported by the text view so the row never fights
-    /// the content.
-    @State private var height: CGFloat
-
     init(document: ArticleDocument, paragraph: Paragraph) {
       self.document = document
       self.paragraph = paragraph
-      _height = State(initialValue: ParagraphEditorView.estimatedHeight(for: paragraph))
     }
 
     // MARK: - Derived state
@@ -85,7 +80,6 @@
           onDashSpace: { document.handleDashSpace(id: paragraph.id) },
           onPasteSplit: { document.handlePaste(id: paragraph.id, range: $0, text: $1) },
           onSelectionChange: { document.selectionChanged(id: paragraph.id, range: $0) },
-          onHeightChange: { height = $0 },
           onBeginEditing: { document.focus.focusedParagraphID = paragraph.id },
           onEndEditing: {
             if document.focus.focusedParagraphID == paragraph.id {
@@ -95,7 +89,7 @@
           onActionApplied: { document.clearPendingTextAction() },
           onSelectionConsumed: { document.focus.clearSelectionRequest() }
         )
-        .frame(height: height)
+        .frame(height: ParagraphMetrics.height(for: paragraph))
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.leading, isQuote ? TextStyle.quoteInset : TextStyle.editorHorizontalInset)
@@ -119,16 +113,5 @@
         .padding(.top, 2)
         .frame(width: 22)
     }
-
-    /// Rough first-frame height so the row isn't zero-height before the text view
-    /// reports its real size. Corrected immediately after layout.
-    private static func estimatedHeight(for paragraph: Paragraph) -> CGFloat {
-      let length = paragraph.text.uiText.length
-      let lineHeight = paragraph.kind.baseFont.lineHeight
-      guard length > 0 else { return lineHeight + 6 }
-      let charsPerLine = 40.0
-      let lines = max(1.0, ceil(Double(length) / charsPerLine))
-      return CGFloat(lines) * lineHeight + 6
-    }
-  }
+}
 #endif

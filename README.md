@@ -32,7 +32,7 @@ You get the parts that made the original editor great:
 
 **1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (55 tests) on any platform, including Linux and Windows.
 
-**2. No cursor jumps in the SwiftUI ↔ UITextView bridge.** One `UITextView` per paragraph, bridged through a `UIViewRepresentable` (`RichTextView`). The text is re-set only when the external value actually differs from the text view's content; edits flow back through the delegate, never through two-way binding. Row height comes from `layoutManager.usedRect`, applied as an explicit height — no cached heights.
+**2. No cursor jumps in the SwiftUI ↔ UITextView bridge.** One `UITextView` per paragraph, bridged through a `UIViewRepresentable` (`RichTextView`). The text is re-set only when the external value actually differs from the text view's content; edits flow back through the delegate, never through two-way binding. Row height is derived from the paragraph model (`ParagraphMetrics`), so the layout stays correct for every row — even one the stack has released — and never jumps between an estimate and a measurement.
 
 **3. `@FocusState` can't reach a `UIViewRepresentable` — so a `FocusCoordinator` does.** It records the focused paragraph id, drives first responder per text view, and carries a requested cursor position after splits and merges.
 

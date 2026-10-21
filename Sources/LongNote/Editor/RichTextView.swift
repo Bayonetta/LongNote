@@ -41,7 +41,6 @@
     var onDashSpace: (() -> Void)?
     var onPasteSplit: ((NSRange, String) -> Void)?
     var onSelectionChange: ((NSRange) -> Void)?
-    var onHeightChange: ((CGFloat) -> Void)?
     var onBeginEditing: (() -> Void)?
     var onEndEditing: (() -> Void)?
     var onActionApplied: (() -> Void)?
@@ -69,14 +68,6 @@
           .foregroundColor: TextStyle.textColor.uiColor,
         ]
 
-      // Re-report the height whenever the view lays out (the width may not be
-      // final on the first `updateUIView`, so a stale first measurement is
-      // corrected here).
-      let coordinator = context.coordinator
-      textView.onLayoutSubviews = { [weak coordinator, weak textView] in
-        guard let coordinator, let textView else { return }
-        coordinator.reportHeight(textView)
-      }
       return textView
     }
 
@@ -91,11 +82,6 @@
         textView.attributedText = text
         coordinator.isProgrammaticChange = false
       }
-
-      // Report height on every pass; the coordinator's `lastReportedHeight`
-      // guard makes this a no-op unless it actually changed (this also covers
-      // the first layout, when the text was already set in `makeUIView`).
-      coordinator.reportHeight(textView)
 
       // 2. Placeholder redraw.
       (textView as? LongNoteTextView)?.placeholder = placeholder
@@ -153,8 +139,6 @@
       var representable: RichTextView
       var isProgrammaticChange = false
       var lastAppliedAction: RichTextAction?
-      private var lastReportedHeight: CGFloat = -1
-      private var lastReportedWidth: CGFloat = -1
 
       init(_ representable: RichTextView) {
         self.representable = representable
@@ -166,7 +150,6 @@
       func textViewDidChange(_ textView: UITextView) {
         guard !isProgrammaticChange else { return }
         representable.onTextChange?(textView.attributedText ?? NSAttributedString(string: ""))
-        reportHeight(textView)
       }
 
       func textViewDidChangeSelection(_ textView: UITextView) {
@@ -221,35 +204,16 @@
         return true
       }
 
-      // MARK: Height
-
-      func reportHeight(_ textView: UITextView) {
-        // Ask the text view itself how tall it needs to be at its current
-        // width. Measuring the layout manager directly can use a stale text
-        // container width (clipping a wrapped line) and mutating the container
-        // size fights the view's own sizing — which made list rows bounce
-        // between two heights while laying out.
-        let width = textView.bounds.width
-        guard width > 0 else { return }
-        let fitting = textView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
-        let height = ceil(fitting.height)
-        guard height != lastReportedHeight || width != lastReportedWidth else { return }
-        lastReportedHeight = height
-        lastReportedWidth = width
-        representable.onHeightChange?(height)
-      }
-    }
   }
 
-  /// Internal `UITextView` subclass that draws a placeholder when empty and reports
-  /// layout passes so the SwiftUI row height stays exact.
+  /// Internal `UITextView` subclass that draws a placeholder when empty and
+  /// opts out of intrinsic sizing (see the comment below).
   ///
   /// Internal (not private) so `sizeThatFits(_:uiView:context:)` above can name
   /// it in an internal signature — a fileprivate witness is not picked up by
   /// SwiftUI's representable sizing.
   final class LongNoteTextView: UITextView {
     var placeholder: String?
-    var onLayoutSubviews: (() -> Void)?
 
     override init(frame: CGRect, textContainer: NSTextContainer?) {
       super.init(frame: frame, textContainer: textContainer)
@@ -259,11 +223,6 @@
         name: UITextView.textDidChangeNotification,
         object: self
       )
-    }
-
-    override func layoutSubviews() {
-      super.layoutSubviews()
-      onLayoutSubviews?()
     }
 
     /// Report *no* intrinsic size.
@@ -308,4 +267,5 @@
       (placeholder as NSString).draw(at: point, withAttributes: attributes)
     }
   }
+}
 #endif
