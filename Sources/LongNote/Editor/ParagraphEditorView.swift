@@ -67,6 +67,7 @@
           text: paragraph.text.uiText,
           placeholder: placeholder,
           isFocused: isFocused,
+          shouldResign: document.focus.focusedParagraphID == nil,
           textInsets: UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0),
           selection: requestedSelection,
           actionToApply: actionToApply,

@@ -120,10 +120,13 @@
     }
 
     /// One toolbar cell: SF Symbol above a small caption, filling its slot.
+    /// The icon box has a fixed height so thin symbols (e.g. `minus`) keep the
+    /// captions on one baseline.
     private func toolbarItem(_ icon: String, caption: String) -> some View {
       VStack(spacing: 3) {
         Image(systemName: icon)
           .font(.system(size: 17, weight: .medium))
+          .frame(height: 22)
         Text(caption)
           .font(.system(size: 10))
       }

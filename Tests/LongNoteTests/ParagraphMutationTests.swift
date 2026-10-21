@@ -253,14 +253,33 @@ final class ParagraphMutationTests: XCTestCase {
 
   // MARK: - Block insertion
 
-  func testInsertDividerPadsWithEmptyBodies() {
+  func testInsertDividerFocusesLineBelow() {
     let p = body("x")
     let result = ParagraphMutation.insertDivider([p], after: p.id)
 
-    XCTAssertEqual(kinds(result.paragraphs), [.body, .body, .divider, .body])
-    XCTAssertTrue(result.paragraphs[1].isEmpty)
-    XCTAssertTrue(result.paragraphs[3].isEmpty)
-    XCTAssertEqual(result.focusID, result.paragraphs[3].id)
+    XCTAssertEqual(kinds(result.paragraphs), [.body, .divider, .body])
+    XCTAssertTrue(result.paragraphs[2].isEmpty)
+    XCTAssertEqual(result.focusID, result.paragraphs[2].id)
+  }
+
+  func testInsertDividerReusesExistingTextParagraphBelow() {
+    let a = body("A")
+    let b = body("B")
+    let result = ParagraphMutation.insertDivider([a, b], after: a.id)
+
+    XCTAssertEqual(kinds(result.paragraphs), [.body, .divider, .body])
+    XCTAssertEqual(result.paragraphs[2].text.string, "B")
+    XCTAssertEqual(result.focusID, b.id)
+  }
+
+  func testInsertDividerAddsBodyBeforeImage() {
+    let a = body("A")
+    var image = Paragraph(kind: .image)
+    image.image = ParagraphImage(fileName: "pic.jpg", width: 10, height: 10)
+    let result = ParagraphMutation.insertDivider([a, image], after: a.id)
+
+    XCTAssertEqual(kinds(result.paragraphs), [.body, .divider, .body, .image])
+    XCTAssertEqual(result.focusID, result.paragraphs[2].id)
   }
 
   func testInsertImagePadsWithEmptyBodies() {

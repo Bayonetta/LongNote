@@ -47,7 +47,7 @@ Swift Package Manager で配布できる、長文章（ロングリード）向�
 ### 技術的なアピールポイント
 
 **1. 編集操作をすべて純関数として実装**
-Return・行頭 Backspace・複数行ペーストの分割・スタイル変換など、キーボード操作による段落の変化を `[Paragraph] -> ParagraphMutation.Result` の純関数に集約しました。UIKit に一切依存しないため、Linux / Windows を含む任意のプラットフォームで単体テストが実行できます（39 テスト）。
+Return・行頭 Backspace・複数行ペーストの分割・スタイル変換など、キーボード操作による段落の変化を `[Paragraph] -> ParagraphMutation.Result` の純関数に集約しました。UIKit に一切依存しないため、Linux / Windows を含む任意のプラットフォームで単体テストが実行できます（41 テスト）。
 
 **2. SwiftUI × UITextView 橋渡し時のカーソルジャンプを解消**
 段落ごとに `UITextView` を配置し、外部モデルと TextKit 内のテキストが**実際に異なるときだけ**テキストを再設定します。編集結果は delegate 経由で戻すため、双方向バインディングは使いません。行の高さは `layoutManager.usedRect` で計測して SwiftUI 側の行高さに反映しています。
@@ -148,7 +148,8 @@ open LongNoteDemo.xcodeproj
 | 行頭で Backspace | 前の段落に結合（分割線・画像はスキップ / 削除） |
 | 空のリスト項目で Return | リストを解除して本文に変換 |
 | 複数行ペースト | 1 行 = 1 段落に分割 |
-| 分割線 / 画像の挿入 | 前後に空の本文段落を足してからフォーカスを移動 |
+| 分割線の挿入 | 現在の段落の直後に挿入し、その下の行にカーソルを移す（余分な空行は作らない） |
+| 画像の挿入 | 前後に空の本文段落を足してからフォーカスを移動 |
 
 **フォーカス。** `@FocusState` は `UIViewRepresentable` に直接バインドできません。`FocusCoordinator` がフォーカス中の段落 ID を記録し、各テキストビューが first responder になります。分割・結合後はカーソル位置も運びます。
 
@@ -184,7 +185,7 @@ You get the parts that made the original editor great:
 
 ### Technical highlights
 
-**1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (39 tests) on any platform, including Linux and Windows.
+**1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (41 tests) on any platform, including Linux and Windows.
 
 **2. No cursor jumps in the SwiftUI ↔ UITextView bridge.** One `UITextView` per paragraph, bridged through a `UIViewRepresentable` (`RichTextView`). The text is re-set only when the external value actually differs from the text view's content; edits flow back through the delegate, never through two-way binding. Row height comes from `layoutManager.usedRect`, applied as an explicit height — no cached heights.
 

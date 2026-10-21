@@ -22,6 +22,11 @@
     var text: NSAttributedString
     var placeholder: String?
     var isFocused: Bool
+    /// True when no paragraph holds focus at all (the editor dismissed the
+    /// keyboard). When focus merely moves to a sibling paragraph this stays
+    /// false so this view keeps first responder until the sibling takes over —
+    /// resigning first would drop the keyboard and make it pop back up.
+    var shouldResign: Bool = false
     var textInsets: UIEdgeInsets = .zero
     /// Programmatic selection to apply once focused (split/merge cursor placement).
     var selection: NSRange?
@@ -106,7 +111,7 @@
             textView.becomeFirstResponder()
           }
         }
-      } else if !isFocused, textView.isFirstResponder {
+      } else if !isFocused, textView.isFirstResponder, shouldResign {
         textView.resignFirstResponder()
       }
 
@@ -123,8 +128,17 @@
         if coordinator.lastAppliedAction != action {
           coordinator.lastAppliedAction = action
           textView.applyRichTextAction(action)
+          // Attribute-only text-storage edits do not fire `textViewDidChange`,
+          // so push the styled text back into the model explicitly. Without
+          // this the next update pass resets `attributedText` from the stale
+          // model and the new style silently disappears.
+          onTextChange?(textView.attributedText ?? NSAttributedString(string: ""))
         }
         onActionApplied?()
+        // The document has cleared its pending action synchronously; forget the
+        // marker so the same action can be applied again (bold → unbold uses
+        // the same case).
+        coordinator.lastAppliedAction = nil
       }
     }
 

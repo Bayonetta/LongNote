@@ -12,6 +12,7 @@
 		9803130FC1E1655E4C040ADD /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ED60424FD842356CF76F57 /* ExportView.swift */; };
 		CF61AF4B67EDA014D966B25C /* LongNote in Frameworks */ = {isa = PBXBuildFile; productRef = E161171EF5C40E6545E6095F /* LongNote */; };
 		DE014362851CE90AF6B7C037 /* LongNoteDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FC245B9BEA77F6D2EF0EF5 /* LongNoteDemoApp.swift */; };
+		F8471544DF400D9755EB697E /* SampleArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE36294887D1657D7403CA57 /* SampleArticle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		64420825509A66659A8FF801 /* LongNoteDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LongNoteDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9962B6B15EBBBD6A6A4D046B /* EditorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorScreen.swift; sourceTree = "<group>"; };
 		D7ED60424FD842356CF76F57 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		EE36294887D1657D7403CA57 /* SampleArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleArticle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
 				9962B6B15EBBBD6A6A4D046B /* EditorScreen.swift */,
 				D7ED60424FD842356CF76F57 /* ExportView.swift */,
 				16FC245B9BEA77F6D2EF0EF5 /* LongNoteDemoApp.swift */,
+				EE36294887D1657D7403CA57 /* SampleArticle.swift */,
 			);
 			path = LongNoteDemo;
 			sourceTree = "<group>";
@@ -135,6 +138,7 @@
 				4533ACB79D6CF683BB132E12 /* EditorScreen.swift in Sources */,
 				9803130FC1E1655E4C040ADD /* ExportView.swift in Sources */,
 				DE014362851CE90AF6B7C037 /* LongNoteDemoApp.swift in Sources */,
+				F8471544DF400D9755EB697E /* SampleArticle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,7 +151,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册以保存导出的长图";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "LongNote needs photo library access to save exported long images";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -285,7 +289,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册以保存导出的长图";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "LongNote needs photo library access to save exported long images";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

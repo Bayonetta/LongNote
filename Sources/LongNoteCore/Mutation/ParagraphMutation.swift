@@ -211,15 +211,32 @@ public enum ParagraphMutation {
 
   /// Insert a divider after `id`, padded by an empty body paragraph on each side
   /// so the divider never touches text directly and backspace-merge stays sane.
+  /// Insert a divider directly after `id`, then put the caret on the line below
+  /// it: the next text paragraph takes focus, and an empty body is created first
+  /// when the following block is an image/divider (or there is none).
+  ///
+  /// No padding paragraph is added above the divider — the divider sits right
+  /// below the current paragraph, so inserting one never leaves stray blank
+  /// lines behind.
   public static func insertDivider(_ paragraphs: [Paragraph], after id: Paragraph.ID) -> Result {
     guard let index = paragraphs.firstIndex(where: { $0.id == id }) else {
       return Result(paragraphs: paragraphs, focusID: nil, selection: nil)
     }
     var out = paragraphs
-    let leading = Paragraph.empty(.body)
     let divider = Paragraph(kind: .divider)
+    out.insert(divider, at: index + 1)
+
+    let nextIndex = index + 2
+    if nextIndex < out.count, out[nextIndex].kind.isTextKind {
+      return Result(
+        paragraphs: normalize(out),
+        focusID: out[nextIndex].id,
+        selection: NSRange(location: 0, length: 0)
+      )
+    }
+
     let trailing = Paragraph.empty(.body)
-    out.insert(contentsOf: [leading, divider, trailing], at: index + 1)
+    out.insert(trailing, at: nextIndex)
     return Result(
       paragraphs: normalize(out),
       focusID: trailing.id,
