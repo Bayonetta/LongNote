@@ -2,26 +2,16 @@
 
 **[English](README.md)** · [日本語](README.ja.md) · [中文](README.zh-CN.md)
 
-<div align="center">
-
-[![CI](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue.svg)
-
-<!-- Before publishing: replace <your-github-username> with your own username -->
-<!-- 公開前に <your-github-username> を自分のユーザー名に置き換えてください -->
-
-</div>
 
 **LongNote** — a pure Swift Package that rebuilds the long-article feature of WeicoNote, a popular Weibo client, as a data-driven rich-text / multimedia card editor, in SwiftUI + TextKit 2, with all networking and platform integration stripped out.
 
 ## Screenshots
 
-<p align="center">
-  <img src="docs/screenshot-editor.png" width="270" alt="Editor with a sample article">
-  <img src="docs/screenshot-drafts.png" width="270" alt="Draft list">
-</p>
+![LongNote editor with a sample article, and the draft list](docs/screenshots.png)
 
 *Editor with rich text, mixed block types and autosaved drafts*
 
@@ -65,7 +55,7 @@ Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/<your-github-username>/LongNote.git", from: "1.0.0"),
+    .package(url: "https://github.com/YOUR_GITHUB_USERNAME/LongNote.git", from: "1.0.0"),
 ]
 ```
 

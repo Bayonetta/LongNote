@@ -2,23 +2,16 @@
 
 [English](README.md) · [日本語](README.ja.md) · **[中文](README.zh-CN.md)**
 
-<div align="center">
-
-[![CI](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue.svg)
-
-</div>
 
 **LongNote** —— 把微博客户端 WeicoNote 的长文章功能，用 SwiftUI + TextKit 2 从零重建为一个数据驱动的富文本 / 多媒体卡片编辑器组件库，去掉全部网络与平台依赖。
 
 ## 截图
 
-<p align="center">
-  <img src="docs/screenshot-editor.png" width="270" alt="打开示例文章的编辑器">
-  <img src="docs/screenshot-drafts.png" width="270" alt="草稿列表">
-</p>
+![LongNote editor with a sample article, and the draft list](docs/screenshots.png)
 
 *富文本、混排块、自动保存的草稿*
 
@@ -64,7 +57,7 @@ Swift Package Manager：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/<your-github-username>/LongNote.git", from: "1.0.0"),
+    .package(url: "https://github.com/YOUR_GITHUB_USERNAME/LongNote.git", from: "1.0.0"),
 ]
 ```
 

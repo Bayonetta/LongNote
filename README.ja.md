@@ -2,23 +2,16 @@
 
 [English](README.md) · **[日本語](README.ja.md)** · [中文](README.zh-CN.md)
 
-<div align="center">
-
-[![CI](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/&lt;your-github-username&gt;/LongNote/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/LongNote/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue.svg)
-
-</div>
 
 **LongNote** — 微博クライアント「WeicoNote」の長文章機能に由来する、SwiftUI + TextKit 2 でゼロから再構築したデータドリブンなリッチテキスト / マルチメディアカードエディタです。Swift Package として提供し、ネットワーク連携（ログイン・素材・決済・投稿）はすべて除外しています。
 
 ## スクリーンショット
 
-<p align="center">
-  <img src="docs/screenshot-editor.png" width="270" alt="サンプル記事を開いたエディタ">
-  <img src="docs/screenshot-drafts.png" width="270" alt="草稿リスト">
-</p>
+![LongNote editor with a sample article, and the draft list](docs/screenshots.png)
 
 *リッチテキスト・混在ブロック・自動保存される草稿*
 
@@ -70,7 +63,7 @@ Swift Package Manager：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/<your-github-username>/LongNote.git", from: "1.0.0"),
+    .package(url: "https://github.com/YOUR_GITHUB_USERNAME/LongNote.git", from: "1.0.0"),
 ]
 ```
 
