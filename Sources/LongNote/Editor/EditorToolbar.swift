@@ -15,6 +15,9 @@
     @State private var showLinkPrompt = false
     @State private var linkDraft = ""
     @State private var showImageLimitAlert = false
+    /// Captured when the link prompt opens: the alert resigns first responder,
+    /// which clears the focused paragraph and the selection.
+    @State private var linkTarget: (id: Paragraph.ID, selection: NSRange?)?
 
     private var focusedID: Paragraph.ID? {
       document.focus.focusedParagraphID
@@ -56,10 +59,11 @@
         TextField("https://", text: $linkDraft)
         Button("Cancel", role: .cancel) { linkDraft = "" }
         Button("OK") {
-          if let url = URL(string: linkDraft), url.scheme != nil {
-            document.enqueueTextAction(.setLink(url))
+          defer { linkTarget = nil; linkDraft = "" }
+          if let url = URL(string: linkDraft), url.scheme != nil, let linkTarget {
+            document.enqueueTextAction(
+              .setLink(url), for: linkTarget.id, selection: linkTarget.selection)
           }
-          linkDraft = ""
         }
       } message: {
         Text("The link applies to the current selection")
@@ -125,8 +129,11 @@
     /// Link — attaches a URL to the current selection.
     private var linkButton: some View {
       Button {
-        guard targetID() != nil else { return }
-        showLinkPrompt = true
+        // Remember where the link goes *before* the alert takes over.
+        if let id = targetID() {
+          linkTarget = (id, document.focusedSelection)
+          showLinkPrompt = true
+        }
       } label: {
         barIcon("link")
       }

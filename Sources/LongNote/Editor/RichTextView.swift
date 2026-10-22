@@ -32,6 +32,9 @@
     var selection: NSRange?
     /// Styling action to apply to the live text view (nil = nothing to do).
     var actionToApply: RichTextAction?
+    /// Selection to apply the action to, captured when the toolbar's prompt
+    /// opened (the alert resigns first responder and clears the live one).
+    var actionSelection: NSRange?
     /// Attributes for new text before the user has made any formatting choice.
     var initialTypingAttributes: [NSAttributedString.Key: Any]?
 
@@ -113,6 +116,7 @@
       if let action = actionToApply {
         if coordinator.lastAppliedAction != action {
           coordinator.lastAppliedAction = action
+          restoreActionSelection(in: textView, coordinator: coordinator)
           textView.applyRichTextAction(action)
           // Attribute-only text-storage edits do not fire `textViewDidChange`,
           // so push the styled text back into the model explicitly. Without
@@ -125,6 +129,21 @@
         // marker so the same action can be applied again (bold → unbold uses
         // the same case).
         coordinator.lastAppliedAction = nil
+      }
+    }
+
+    /// Puts the selection captured when the prompt opened back into the text
+    /// view, so the action lands on the same range the user had selected.
+    private func restoreActionSelection(in textView: UITextView, coordinator: Coordinator) {
+      guard let actionSelection else { return }
+      let length = textView.textStorage.length
+      let location = min(max(actionSelection.location, 0), length)
+      let range = NSRange(
+        location: location, length: min(actionSelection.length, length - location))
+      if range != textView.selectedRange {
+        coordinator.isProgrammaticChange = true
+        textView.selectedRange = range
+        coordinator.isProgrammaticChange = false
       }
     }
 

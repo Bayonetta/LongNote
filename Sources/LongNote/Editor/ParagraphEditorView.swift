@@ -39,8 +39,15 @@
     }
 
     private var actionToApply: RichTextAction? {
-      guard let action = document.pendingTextAction, action.0 == paragraph.id else { return nil }
-      return action.1
+      guard let action = document.pendingTextAction, action.id == paragraph.id else { return nil }
+      return action.action
+    }
+
+    /// The range the pending action applies to, captured when the toolbar opened
+    /// its prompt (the alert clears the live selection).
+    private var actionSelection: NSRange? {
+      guard let action = document.pendingTextAction, action.id == paragraph.id else { return nil }
+      return action.selection
     }
 
     private var isQuote: Bool { paragraph.kind == .quote }
@@ -73,6 +80,7 @@
           textInsets: UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0),
           selection: requestedSelection,
           actionToApply: actionToApply,
+          actionSelection: actionSelection,
           initialTypingAttributes: paragraph.kind.baseAttributes,
           onTextChange: { document.updateText($0, for: paragraph.id) },
           onReturn: { document.handleReturn(id: paragraph.id, location: $0.location) },
@@ -86,7 +94,14 @@
               document.focus.focusedParagraphID = nil
             }
           },
-          onActionApplied: { document.clearPendingTextAction() },
+          onActionApplied: {
+            document.clearPendingTextAction()
+            // The prompt's alert dismissed the keyboard; bring the caret back to
+            // the paragraph so typing can continue where it left off.
+            if document.focus.focusedParagraphID == nil {
+              document.focus.focus(paragraph.id)
+            }
+          },
           onSelectionConsumed: { document.focus.clearSelectionRequest() }
         )
         .frame(height: ParagraphMetrics.height(for: paragraph))

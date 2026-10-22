@@ -25,7 +25,11 @@
 
     /// A rich-text action the toolbar enqueued for a specific paragraph; the
     /// paragraph view applies it to its live `UITextView` and clears it again.
-    public var pendingTextAction: (Paragraph.ID, RichTextAction)?
+    ///
+    /// `selection` is the range captured when the toolbar opened its prompt:
+    /// presenting the alert resigns first responder, which clears the focused
+    /// paragraph and the live selection, so neither can be read afterwards.
+    public var pendingTextAction: (id: Paragraph.ID, action: RichTextAction, selection: NSRange?)?
 
     private var autosaveTask: Task<Void, Never>?
 
@@ -81,7 +85,7 @@
       }
       article.paragraphs = paragraphs
       apply(ParagraphMutation.convert(article.paragraphs, id: id, to: .list))
-      pendingTextAction = (id, .setParagraphStyle(.list))
+      pendingTextAction = (id, .setParagraphStyle(.list), nil)
       scheduleAutosave()
     }
 
@@ -107,7 +111,7 @@
     /// view also restyles the whole text to the kind's base font/color.
     public func setKind(_ kind: ParagraphKind, for id: Paragraph.ID) {
       apply(ParagraphMutation.convert(article.paragraphs, id: id, to: kind))
-      pendingTextAction = (id, .setParagraphStyle(kind))
+      pendingTextAction = (id, .setParagraphStyle(kind), nil)
       scheduleAutosave()
     }
 
@@ -203,10 +207,16 @@
         at: location, effectiveRange: nil)
     }
 
-    /// Ask the toolbar to deliver `action` to the currently focused paragraph.
-    public func enqueueTextAction(_ action: RichTextAction) {
-      guard let id = focus.focusedParagraphID else { return }
-      pendingTextAction = (id, action)
+    /// Ask the toolbar to deliver `action` to `id` (or the focused paragraph).
+    /// `selection` is the range the action applies to; pass the one captured
+    /// when a prompt opened, because the alert clears the live selection.
+    public func enqueueTextAction(
+      _ action: RichTextAction,
+      for id: Paragraph.ID? = nil,
+      selection: NSRange? = nil
+    ) {
+      guard let target = id ?? focus.focusedParagraphID else { return }
+      pendingTextAction = (target, action, selection)
     }
 
     public func clearPendingTextAction() {

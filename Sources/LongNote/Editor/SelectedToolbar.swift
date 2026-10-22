@@ -14,6 +14,8 @@
     @State private var showColorPanel = false
     @State private var showLinkPrompt = false
     @State private var linkDraft = ""
+    /// Captured when the link prompt opens (the alert clears focus/selection).
+    @State private var linkTarget: (id: Paragraph.ID, selection: NSRange?)?
 
     private var isBold: Bool {
       guard let font = document.focusedSelectionAttributes[.font] as? UIFont else { return false }
@@ -52,8 +54,12 @@
 
         Button {
           if hasLink {
-            document.enqueueTextAction(.setLink(nil))
-          } else {
+            if let id = document.focus.focusedParagraphID {
+              document.enqueueTextAction(
+                .setLink(nil), for: id, selection: document.focusedSelection)
+            }
+          } else if let id = document.focus.focusedParagraphID {
+            linkTarget = (id, document.focusedSelection)
             showLinkPrompt = true
           }
         } label: {
@@ -82,10 +88,11 @@
         TextField("https://", text: $linkDraft)
         Button("Cancel", role: .cancel) { linkDraft = "" }
         Button("OK") {
-          if let url = URL(string: linkDraft), url.scheme != nil {
-            document.enqueueTextAction(.setLink(url))
+          defer { linkTarget = nil; linkDraft = "" }
+          if let url = URL(string: linkDraft), url.scheme != nil, let linkTarget {
+            document.enqueueTextAction(
+              .setLink(url), for: linkTarget.id, selection: linkTarget.selection)
           }
-          linkDraft = ""
         }
       } message: {
         Text("The link applies to the current selection")
