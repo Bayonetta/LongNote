@@ -1,9 +1,9 @@
 import LongNote
 import SwiftUI
 
-/// Renders the article as a long image, previews it, and offers save-to-photos
-/// plus share. Falls back to a tile set when the content is too tall for a single
-/// `UIImage` (see `ArticleImageRenderer`).
+/// Renders the article as a long image, previews it, and offers share plus
+/// save-to-photos. Falls back to a tile set when the content is too tall for a
+/// single `UIImage` (see `ArticleImageRenderer`).
 struct ExportView: View {
   let article: Article
   let store: FileArticleStore
@@ -12,6 +12,9 @@ struct ExportView: View {
   @State private var tiles: [UIImage] = []
   @State private var isRendering = false
   @State private var saveError: String?
+  /// A temporary PNG of the first output image, shared as a file so every share
+  /// target (AirDrop, Photos, Files, WeChat…) receives real image data.
+  @State private var shareFile: URL?
 
   var body: some View {
     NavigationStack {
@@ -20,12 +23,7 @@ struct ExportView: View {
           ProgressView("Rendering long image…")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let singleImage {
-          ScrollView([.horizontal, .vertical]) {
-            Image(uiImage: singleImage)
-              .resizable()
-              .scaledToFit()
-              .padding()
-          }
+          LongImagePreview(image: singleImage)
         } else if !tiles.isEmpty {
           ScrollView(.horizontal) {
             HStack(spacing: 8) {
@@ -40,18 +38,16 @@ struct ExportView: View {
           }
         } else {
           ContentUnavailableView(
-            "Render failed", systemImage: "exclamationmark.triangle", description: Text("The article is too long or empty"))
+            "Render failed", systemImage: "exclamationmark.triangle",
+            description: Text("The article is too long or empty"))
         }
       }
       .navigationTitle("Preview")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItemGroup(placement: .confirmationAction) {
-          if !outputImages.isEmpty {
-            ShareLink(
-              item: Image(uiImage: outputImages[0]),
-              preview: SharePreview("Long image", image: Image(uiImage: outputImages[0]))
-            )
+          if let shareFile {
+            ShareLink(item: shareFile, preview: SharePreview("Long image", image: shareFile))
             Button("Save to Photos") {
               saveToPhotoLibrary()
             }
@@ -92,6 +88,16 @@ struct ExportView: View {
     } else {
       tiles = ArticleImageRenderer.renderTiles(article, imageLoader: imageLoader)
     }
+    shareFile = Self.makeShareFile(from: outputImages.first)
+  }
+
+  /// Writes the image to a temporary PNG so it can be shared as a file.
+  private static func makeShareFile(from image: UIImage?) -> URL? {
+    guard let image, let data = image.pngData() else { return nil }
+    let url = FileManager.default.temporaryDirectory
+      .appendingPathComponent("LongNote-\(UUID().uuidString.prefix(8)).png")
+    guard (try? data.write(to: url)) != nil else { return nil }
+    return url
   }
 
   private func saveToPhotoLibrary() {
