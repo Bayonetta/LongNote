@@ -78,9 +78,6 @@
         }
       }
       .onDisappear { document.saveNow() }
-      .sheet(isPresented: $document.isPresentingSummary) {
-        SummaryEditorSheet(document: document)
-      }
     }
 
     // MARK: - Paragraph rows
@@ -114,36 +111,6 @@
         withAnimation(.easeInOut(duration: 0.2)) {
           proxy.scrollTo(id, anchor: .center)
         }
-      }
-    }
-  }
-
-  /// Sheet for editing the article summary (lede).
-  @MainActor
-  private struct SummaryEditorSheet: View {
-    let document: ArticleDocument
-    @Environment(\.dismiss) private var dismiss
-    @State private var draft: String = ""
-
-    var body: some View {
-      NavigationStack {
-        TextEditor(text: $draft)
-          .padding()
-          .navigationTitle("Summary")
-          .navigationBarTitleDisplayMode(.inline)
-          .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-              Button("Cancel") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-              Button("Save") {
-                document.updateSummary(draft)
-                dismiss()
-              }
-              .fontWeight(.semibold)
-            }
-          }
-          .onAppear { draft = document.article.summary ?? "" }
       }
     }
   }

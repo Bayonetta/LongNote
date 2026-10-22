@@ -4,9 +4,9 @@
   import LongNoteCore
 
   /// The main bottom toolbar — a faithful SwiftUI rebuild of the original
-  /// WeicoNote compose bar: seven equal icon-only slots (46 pt tall) in the
+  /// WeicoNote compose bar: six equal icon-only slots (46 pt tall) in the
   /// original order — photo, form (paragraph style), quote, list, link,
-  /// divider, more — with SF Symbols standing in for the original artwork.
+  /// divider — with SF Symbols standing in for the original artwork.
   @MainActor
   struct EditorToolbar: View {
     let document: ArticleDocument
@@ -39,7 +39,6 @@
         listButton
         linkButton
         dividerButton
-        moreMenu
       }
       .frame(height: 46)
       .background(.bar)
@@ -143,28 +142,6 @@
         barIcon("minus")
       }
       .accessibilityLabel("Insert divider")
-    }
-
-    /// More — the original insert panel. The monetisation entries (tip / paid
-    /// reading) and "insert article" are publishing features outside this
-    /// library's scope, so the menu keeps the insertable pieces it supports.
-    private var moreMenu: some View {
-      Menu {
-        Button {
-          document.isPresentingSummary = true
-        } label: {
-          Label("Summary", systemImage: "text.alignleft")
-        }
-        Button {
-          guard let id = targetID() else { return }
-          document.insertDivider(after: id)
-        } label: {
-          Label("Divider", systemImage: "minus")
-        }
-      } label: {
-        barIcon("ellipsis")
-      }
-      .accessibilityLabel("More")
     }
 
     // MARK: - Pieces

@@ -18,8 +18,7 @@
     public let store: any ArticleStore
 
     /// Presented state for the summary editor sheet.
-    public var isPresentingSummary = false
-
+  
     // Selection tracking, read by the selection toolbar to reflect bold/color.
     public var focusedSelection: NSRange?
     public var focusedSelectionAttributes: [NSAttributedString.Key: Any] = [:]
@@ -148,7 +147,8 @@
     }
 
     public func updateSummary(_ summary: String) {
-      article.summary = summary
+      // Empty means "no lede" — keeps the placeholder and the export clean.
+      article.summary = summary.isEmpty ? nil : summary
       scheduleAutosave()
     }
 
