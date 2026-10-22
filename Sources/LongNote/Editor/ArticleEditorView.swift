@@ -61,11 +61,21 @@
       .background(Color(.systemBackground))
       // The compose bar is not pinned to the bottom of the screen: it rides on
       // the keyboard (like the original editor) and leaves with it.
-      .overlay(alignment: .bottom) {
+      //
+      // A bottom safe-area inset of "bar + keyboard height" places the bar
+      // directly on the keyboard's top edge. `ignoresSafeArea(.keyboard)` is
+      // what makes that exact: without it the inset is measured from the home
+      // indicator instead of the screen bottom, leaving a ~34 pt gap between the
+      // bar and the keyboard.
+      .safeAreaInset(edge: .bottom, spacing: 0) {
         if keyboardInset > 0 {
-          toolbar
-            .padding(.bottom, keyboardInset)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+          VStack(spacing: 0) {
+            toolbar
+            // Fills the keyboard's own area, which the keyboard covers anyway.
+            Color.clear.frame(height: keyboardInset)
+          }
+          .ignoresSafeArea(.keyboard, edges: .bottom)
+          .transition(.move(edge: .bottom))
         }
       }
       .animation(.easeOut(duration: 0.25), value: keyboardInset)
@@ -104,6 +114,13 @@
         }
       }
       .onDisappear { document.saveNow() }
+      .overlay(alignment: .topLeading) {
+        Text("inset=\(keyboardInset)")
+          .font(.caption2)
+          .padding(6)
+          .background(.yellow.opacity(0.8))
+          .padding(.leading, 60)
+      }
     }
 
     // MARK: - Paragraph rows
@@ -138,9 +155,13 @@
       guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
         frame.height > 1
       else {
+        NSLog("[DEBUG] kb no-frame note=%@", note.name.rawValue)
         return 0
       }
-      return max(UIScreen.main.bounds.height - frame.minY, 0)
+      let h = max(UIScreen.main.bounds.height - frame.minY, 0)
+      NSLog("[DEBUG] kb note=%s frame=%s screen=%.1f -> inset=%.1f",
+            note.name.rawValue, "\(frame)", UIScreen.main.bounds.height, h)
+      return h
     }
 
     private static func keyboardDuration(in note: Notification) -> Double {
