@@ -17,9 +17,11 @@
   public enum ArticleImageRenderer {
 
     public struct Configuration: Sendable {
-      /// Export width in points.
+      /// Export width in points. Defaults to the screen width, so the exported
+      /// image matches what the editor shows (same wrap width, same relative
+      /// type size) instead of being scaled down when viewed or shared.
       public var width: CGFloat
-      /// Raster scale (2 = @2x).
+      /// Raster scale (2 = @2x). Defaults to the screen scale.
       public var scale: CGFloat
       /// Content up to this height (points) renders in a single pass.
       public var maxSingleHeight: CGFloat
@@ -27,7 +29,9 @@
       public var maxTileHeight: CGFloat
 
       public init(
-        width: CGFloat = 750, scale: CGFloat = 2, maxSingleHeight: CGFloat = 5000,
+        width: CGFloat = UIScreen.main.bounds.width,
+        scale: CGFloat = UIScreen.main.scale,
+        maxSingleHeight: CGFloat = 5000,
         maxTileHeight: CGFloat = 3000
       ) {
         self.width = width
