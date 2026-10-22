@@ -14,6 +14,10 @@
     private let onClose: (() -> Void)?
     private let exportAction: (() -> Void)?
 
+    /// Height of the on-screen keyboard; 0 when it is hidden. Drives the compose
+    /// bar, which floats directly above the keyboard and disappears with it.
+    @State private var keyboardInset: CGFloat = 0
+
     public init(
       document: ArticleDocument,
       onClose: (() -> Void)? = nil,
@@ -53,11 +57,33 @@
             scrollTo(newID, using: proxy)
           }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-          toolbar
-        }
       }
       .background(Color(.systemBackground))
+      // The compose bar is not pinned to the bottom of the screen: it rides on
+      // the keyboard (like the original editor) and leaves with it.
+      .overlay(alignment: .bottom) {
+        if keyboardInset > 0 {
+          toolbar
+            .padding(.bottom, keyboardInset)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+      }
+      .animation(.easeOut(duration: 0.25), value: keyboardInset)
+      .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { note in
+        withAnimation(.easeOut(duration: Self.keyboardDuration(in: note))) {
+          keyboardInset = Self.keyboardHeight(in: note)
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { note in
+        withAnimation(.easeOut(duration: Self.keyboardDuration(in: note))) {
+          keyboardInset = 0
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { note in
+        withAnimation(.easeOut(duration: Self.keyboardDuration(in: note))) {
+          keyboardInset = Self.keyboardHeight(in: note)
+        }
+      }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         if let onClose {
@@ -104,6 +130,21 @@
         }
         EditorToolbar(document: document)
       }
+    }
+
+    /// Height the keyboard occupies at the bottom of the screen, taken from a
+    /// keyboard notification's end frame (screen coordinates).
+    private static func keyboardHeight(in note: Notification) -> CGFloat {
+      guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+        frame.height > 1
+      else {
+        return 0
+      }
+      return max(UIScreen.main.bounds.height - frame.minY, 0)
+    }
+
+    private static func keyboardDuration(in note: Notification) -> Double {
+      (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
     }
 
     private func scrollTo(_ id: Paragraph.ID, using proxy: ScrollViewProxy) {

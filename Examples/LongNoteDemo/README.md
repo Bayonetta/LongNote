@@ -42,8 +42,9 @@ Select the `LongNoteDemo` scheme and run on an iOS 18 simulator or device.
   and use *Load Sample Article* to bring it back.
 - Type a title, add a cover, write a summary.
 - Press Return to split paragraphs, Backspace at a line start to merge them back.
-- Use the bottom toolbar to switch a paragraph to H1/H2/quote/list, insert a
-  divider or an image (with a caption), and add a link.
+- The compose bar floats on the keyboard: tap into a paragraph to bring it up
+  (switch to H1/H2/quote/list, insert a divider or an image with a caption, add
+  a link), and dismiss the keyboard to hide it again.
 - Select text and use the floating toolbar for bold / strikethrough / color /
   link.
 - Tap the share icon, then **Save to Photos** or **Share**.
