@@ -42,7 +42,9 @@
     }
 
     public var body: some View {
-      VStack(spacing: 0) {
+      // Leading alignment: a VStack defaults to centring, which centred every
+      // multi-line paragraph (and the list / quote rows) in the export.
+      VStack(alignment: .leading, spacing: 0) {
         if includeHeader {
           header
         }
@@ -125,9 +127,9 @@
           RoundedRectangle(cornerRadius: TextStyle.quoteBarWidth / 2)
             .fill(TextStyle.quoteBarColor.color)
             .frame(width: TextStyle.quoteBarWidth)
-          Text(renderText(for: paragraph))
-            .lineSpacing(4)
+          paragraphText(paragraph)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, TextStyle.editorHorizontalInset)
         .padding(.vertical, spacing(for: paragraph))
       case .list:
@@ -135,14 +137,14 @@
           Text("•")
             .font(.system(size: TextStyle.listFontSize, weight: .medium))
             .frame(width: 16)
-          Text(renderText(for: paragraph))
-            .lineSpacing(4)
+          paragraphText(paragraph)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, TextStyle.editorHorizontalInset)
         .padding(.vertical, spacing(for: paragraph))
       default:
-        Text(renderText(for: paragraph))
-          .lineSpacing(4)
+        paragraphText(paragraph)
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.horizontal, TextStyle.editorHorizontalInset)
           .padding(.vertical, spacing(for: paragraph))
       }
@@ -177,8 +179,36 @@
 
     /// Renders the paragraph's rich text with the block's typography applied
     /// (shared with the editor through `styledText(_:)`, so both agree).
+    /// Renders the paragraph's rich text with the block's typography applied
+    /// (shared with the editor through `styledText(_:)`).
+    ///
+    /// The paragraph style is stripped before the bridge: SwiftUI applies an
+    /// `AttributedString`'s paragraph style per run, which inflated the line
+    /// height several times over (a two-line quote reserved 156 pt). Spacing and
+    /// alignment come from view modifiers instead, so the exported line rhythm
+    /// matches the editor exactly.
     private func renderText(for paragraph: Paragraph) -> AttributedString {
-      paragraph.text.styledText(paragraph.kind).swiftUI
+      let styled = NSMutableAttributedString(
+        attributedString: paragraph.text.styledText(paragraph.kind))
+      styled.removeAttribute(.paragraphStyle, range: NSRange(location: 0, length: styled.length))
+      return AttributedString(styled)
+    }
+
+    /// Paragraph text with the block's line spacing and alignment.
+    private func paragraphText(_ paragraph: Paragraph) -> some View {
+      Text(renderText(for: paragraph))
+        .lineSpacing(paragraph.kind.lineSpacing)
+        .multilineTextAlignment(
+          textAlignment(CodableAttributedString.alignment(for: paragraph.text.string))
+        )
+    }
+
+    private func textAlignment(_ alignment: NSTextAlignment) -> TextAlignment {
+      switch alignment {
+      case .center: return .center
+      case .right: return .trailing
+      default: return .leading
+      }
     }
 
     // MARK: - Footer

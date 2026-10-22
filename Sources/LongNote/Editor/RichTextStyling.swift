@@ -44,7 +44,7 @@
     /// The original justifies every paragraph. That reads well for CJK text but
     /// produces rivers in a narrow column of Latin text, so justification is
     /// kept for CJK-heavy content and Latin falls back to natural alignment.
-    fileprivate static func alignment(for text: String) -> NSTextAlignment {
+    static func alignment(for text: String) -> NSTextAlignment {
       guard !text.isEmpty else { return .natural }
       var cjk = 0
       for scalar in text.unicodeScalars {
