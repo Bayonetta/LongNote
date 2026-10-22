@@ -22,7 +22,7 @@ A **pure Swift Package** component library that descends from the long-article f
 You get the parts that made the original editor great:
 
 - **Per-paragraph rich text** — each paragraph is a `UITextView` (TextKit 2), giving full per-run control over bold / strikethrough / color / link, exactly like the original one-paragraph-per-row list.
-- **Cover / title / summary** — 16:9 cover, 32-character title, optional lede.
+- **Cover / title / summary** — 16:9 cover, 32-character title (input simply stops at the limit), optional lede.
 - **Mixed blocks** — H1 / H2 / body / quote / list / image / divider in one flow.
 - **Long-image export** — SwiftUI `ImageRenderer` with a tiling fallback for very long articles.
 - **Draft autosave** — a tiny file-based `ArticleStore` (one directory per article), autosaved with a 2 s debounce. The library does not bind you to SwiftData.
@@ -123,7 +123,7 @@ Sources/
 └── LongNote/
     ├── Editor/         ArticleDocument (@Observable) · FocusCoordinator · RichTextView ·
     │                   ArticleEditorView · ParagraphEditorView · block views · toolbars
-    ├── Rendering/      ArticleRenderView · ArticleImageRenderer (+ tile fallback, photo save)
+    ├── Rendering/      ArticleRenderView · ArticleImageRenderer (tile fallback) · LongImagePreview (pinch/double-tap zoom)
     └── RichText/       NSAttributedString HTML/AttributedString helpers
 ```
 

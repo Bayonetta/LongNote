@@ -2,9 +2,11 @@
   import SwiftUI
   import LongNoteCore
 
-  /// The article title field at the top of the editor, capped at 32 characters with
-  /// a soft word-count warning near the limit (mirrors the original editor's
-  /// `textMaxCount` behavior).
+  /// The article title field at the top of the editor.
+  ///
+  /// The title is hard-capped at 32 characters: the binding refuses values
+  /// beyond the limit, so typing simply stops there (mirroring the original
+  /// editor's `textMaxCount`).
   @MainActor
   struct TitleBlockView: View {
     let document: ArticleDocument
@@ -12,30 +14,24 @@
     private static let maxLength = 32
 
     var body: some View {
-      VStack(alignment: .trailing, spacing: 4) {
-        TextField(
-          "Enter a title",
-          text: Binding(
-            get: { document.article.title },
-            set: { newValue in
-              if newValue.count <= Self.maxLength {
-                document.updateTitle(newValue)
-              }
+      TextField(
+        "Enter a title",
+        text: Binding(
+          get: { document.article.title },
+          set: { newValue in
+            // Ignore anything longer than the cap — the field just stops
+            // accepting input (deleting and editing still work).
+            if newValue.count <= Self.maxLength {
+              document.updateTitle(newValue)
             }
-          ),
-          axis: .vertical
-        )
-        .lineLimit(1...2)
-        .font(.system(size: TextStyle.articleTitleFontSize, weight: .bold))
-        .foregroundStyle(TextStyle.textColor.color)
-        .frame(maxWidth: .infinity, alignment: .leading)
-
-        if document.article.title.count >= Self.maxLength - 4 {
-          Text("Up to \(Self.maxLength) characters")
-            .font(.caption)
-            .foregroundStyle(TextStyle.secondaryTextColor.color)
-        }
-      }
+          }
+        ),
+        axis: .vertical
+      )
+      .lineLimit(1...2)
+      .font(.system(size: TextStyle.articleTitleFontSize, weight: .bold))
+      .foregroundStyle(TextStyle.textColor.color)
+      .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, TextStyle.editorHorizontalInset)
       .padding(.top, 12)
     }

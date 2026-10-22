@@ -24,7 +24,7 @@ Swift Package Manager で配布できる、長文章（ロングリード）向�
 ## 主な機能
 
 - **段落ごとのリッチテキスト編集** — 各段落が独立した `UITextView`（TextKit 2）。選択範囲単位の太字 / 取り消し線 / 色 / リンクが設定できます。
-- **カバー画像・タイトル・リード文** — 16:9 のカバー、32 文字までのタイトル、任意のリード文。
+- **カバー画像・タイトル・リード文** — 16:9 のカバー、32 文字で入力が止まるタイトル、任意のリード文。
 - **混在排版（mixed blocks）** — 大見出し / 小見出し / 本文 / 引用 / リスト / 画像 / 分割線を一つのフロー内に混在させられます。
 - **長画像（ロングイメージ）の書き出し** — SwiftUI `ImageRenderer` による描画と、超長文向けのタイル分割フォールバック。
 - **草稿の自動保存** — ファイルベースの `ArticleStore`（記事ごとに 1 ディレクトリ）。入力停止 2 秒後に自動保存します。SwiftData への依存はありません。
@@ -131,7 +131,7 @@ Sources/
 └── LongNote/
     ├── Editor/         ArticleDocument (@Observable) · FocusCoordinator · RichTextView ·
     │                   ArticleEditorView · ParagraphEditorView · 各ブロックビュー · ツールバー
-    ├── Rendering/      ArticleRenderView · ArticleImageRenderer（タイル分割・写真保存）
+    ├── Rendering/      ArticleRenderView · ArticleImageRenderer（タイル分割） · LongImagePreview（ピンチ / ダブルタップ拡大）
     └── RichText/       NSAttributedString / HTML / AttributedString ヘルパー
 ```
 

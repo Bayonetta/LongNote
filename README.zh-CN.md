@@ -24,7 +24,7 @@
 ## 主要功能
 
 - **逐段富文本编辑** —— 每个段落是一个独立的 `UITextView`（TextKit 2），可以按选区设置加粗 / 删除线 / 颜色 / 链接，与「一段一行」的原版一致。
-- **封面 / 标题 / 导语** —— 16:9 封面、32 字上限的标题、可选导语。
+- **封面 / 标题 / 导语** —— 16:9 封面、标题输入到 32 字即停止、可选导语。
 - **混排块** —— 大标题 / 小标题 / 正文 / 引用 / 列表 / 图片 / 分割线可自由混排。
 - **长图导出** —— SwiftUI `ImageRenderer` 渲染，超长文章走分片兜底。
 - **草稿自动保存** —— 基于文件的 `ArticleStore`（一篇文章一个目录），停止输入 2 秒后自动保存，不绑定 SwiftData。
@@ -125,7 +125,7 @@ Sources/
 └── LongNote/
     ├── Editor/         ArticleDocument (@Observable) · FocusCoordinator · RichTextView ·
     │                   ArticleEditorView · ParagraphEditorView · 各块视图 · 工具栏
-    ├── Rendering/      ArticleRenderView · ArticleImageRenderer（分片兜底、存相册）
+    ├── Rendering/      ArticleRenderView · ArticleImageRenderer（分片兜底） · LongImagePreview（捏合 / 双击缩放）
     └── RichText/       NSAttributedString / HTML / AttributedString 辅助
 ```
 
