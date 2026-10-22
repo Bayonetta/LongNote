@@ -11,7 +11,6 @@ struct ExportView: View {
   @State private var singleImage: UIImage?
   @State private var tiles: [UIImage] = []
   @State private var isRendering = false
-  @State private var saveError: String?
   /// A temporary PNG of the first output image, shared as a file so every share
   /// target (AirDrop, Photos, Files, WeChat…) receives real image data.
   @State private var shareFile: URL?
@@ -42,30 +41,21 @@ struct ExportView: View {
             description: Text("The article is too long or empty"))
         }
       }
-      .navigationTitle("Preview")
-      .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItemGroup(placement: .confirmationAction) {
+        // iOS 26+ left-aligns an inline navigation title, so the title goes
+        // through the principal item to stay centred.
+        ToolbarItem(placement: .principal) {
+          Text("Preview")
+            .font(.headline)
+        }
+        ToolbarItem(placement: .confirmationAction) {
           if let shareFile {
             ShareLink(item: shareFile, preview: SharePreview("Long image", image: shareFile))
-            Button("Save to Photos") {
-              saveToPhotoLibrary()
-            }
+              .buttonStyle(.plain)
           }
         }
       }
       .task { await render() }
-      .alert(
-        "Save failed",
-        isPresented: Binding(
-          get: { saveError != nil },
-          set: { if !$0 { saveError = nil } }
-        )
-      ) {
-        Button("OK", role: .cancel) {}
-      } message: {
-        Text(saveError ?? "")
-      }
     }
   }
 
@@ -100,15 +90,4 @@ struct ExportView: View {
     return url
   }
 
-  private func saveToPhotoLibrary() {
-    Task {
-      do {
-        for image in outputImages {
-          try await image.saveToPhotoLibrary()
-        }
-      } catch {
-        saveError = error.localizedDescription
-      }
-    }
-  }
 }

@@ -18,8 +18,8 @@
       Coordinator()
     }
 
-    public func makeUIView(context: Context) -> UIScrollView {
-      let scrollView = UIScrollView()
+    public func makeUIView(context: Context) -> ZoomableImageScrollView {
+      let scrollView = ZoomableImageScrollView()
       scrollView.minimumZoomScale = 1
       scrollView.maximumZoomScale = 4
       scrollView.bouncesZoom = true
@@ -28,71 +28,44 @@
       scrollView.backgroundColor = UIColor(Color(.systemBackground))
       scrollView.contentInsetAdjustmentBehavior = .never
       scrollView.delegate = context.coordinator
-
-      let imageView = UIImageView(image: image)
-      // The frame always matches the image's aspect ratio, so no letterboxing.
-      imageView.contentMode = .scaleToFill
-      imageView.isUserInteractionEnabled = true
-      scrollView.addSubview(imageView)
-      context.coordinator.imageView = imageView
+      scrollView.apply(image)
 
       let doubleTap = UITapGestureRecognizer(
         target: context.coordinator, action: #selector(Coordinator.doubleTap(_:)))
       doubleTap.numberOfTapsRequired = 2
       scrollView.addGestureRecognizer(doubleTap)
-
-      layoutImage(in: scrollView)
       return scrollView
     }
 
-    public func updateUIView(_ scrollView: UIScrollView, context: Context) {
-      // Bounds change on rotation / size class change; re-fit the image, but
-      // only while not zoomed — the scroll view owns the frame while zooming.
-      if scrollView.zoomScale <= scrollView.minimumZoomScale {
-        layoutImage(in: scrollView)
-      }
-    }
-
-    /// Fits the image to the scroll view's width and sizes the content.
-    private func layoutImage(in scrollView: UIScrollView) {
-      guard let imageView = scrollView.subviews.compactMap({ $0 as? UIImageView }).first else {
-        return
-      }
-      let width = scrollView.bounds.width
-      guard width > 0, image.size.width > 0 else { return }
-
-      let height = width * image.size.height / image.size.width
-      imageView.frame = CGRect(x: 0, y: 0, width: width, height: height)
-      scrollView.contentSize = CGSize(width: width, height: height)
+    public func updateUIView(_ scrollView: ZoomableImageScrollView, context: Context) {
+      scrollView.apply(image)
     }
 
     // MARK: - Coordinator
 
     public final class Coordinator: NSObject, UIScrollViewDelegate {
-      var imageView: UIImageView?
-
       public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        imageView
+        (scrollView as? ZoomableImageScrollView)?.imageView
       }
 
       public func scrollViewDidZoom(_ scrollView: UIScrollView) {
         // Centre the image on the axis that is narrower than the viewport.
         let offsetX = max((scrollView.bounds.width - scrollView.contentSize.width) / 2, 0)
         let offsetY = max((scrollView.bounds.height - scrollView.contentSize.height) / 2, 0)
-        imageView?.center = CGPoint(
+        (scrollView as? ZoomableImageScrollView)?.imageView.center = CGPoint(
           x: scrollView.contentSize.width / 2 + offsetX,
           y: scrollView.contentSize.height / 2 + offsetY
         )
       }
 
       @objc public func doubleTap(_ gesture: UITapGestureRecognizer) {
-        guard let scrollView = gesture.view as? UIScrollView else { return }
+        guard let scrollView = gesture.view as? ZoomableImageScrollView else { return }
         if scrollView.zoomScale > scrollView.minimumZoomScale {
           scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
           return
         }
         // Zoom around the tapped point, like Photos.
-        let point = gesture.location(in: imageView)
+        let point = gesture.location(in: scrollView.imageView)
         let scale: CGFloat = 2.5
         let size = scrollView.bounds.size
         let rect = CGRect(
@@ -103,6 +76,51 @@
         )
         scrollView.zoom(to: rect, animated: true)
       }
+    }
+  }
+
+  /// A `UIScrollView` that keeps its image fitted to its own width.
+  ///
+  /// Fitting happens in `layoutSubviews` rather than from the representable's
+  /// `updateUIView`: on the first pass the bounds are still zero, and relying on
+  /// a later callback left the image at its natural (much wider) size.
+  public final class ZoomableImageScrollView: UIScrollView {
+    public let imageView = UIImageView()
+
+    /// height / width of the current image.
+    private var imageAspect: CGFloat = 1
+
+    public override init(frame: CGRect) {
+      super.init(frame: frame)
+      // The frame always matches the image's aspect ratio, so no letterboxing.
+      imageView.contentMode = .scaleToFill
+      imageView.isUserInteractionEnabled = true
+      addSubview(imageView)
+    }
+
+    public required init?(coder: NSCoder) {
+      fatalError("ZoomableImageScrollView is code-only")
+    }
+
+    public override func layoutSubviews() {
+      super.layoutSubviews()
+      fitImage()
+    }
+
+    /// Sets the image and re-fits it.
+    public func apply(_ image: UIImage) {
+      imageView.image = image
+      imageAspect = image.size.height / max(image.size.width, 1)
+      fitImage()
+    }
+
+    /// Sizes the image to the scroll view's width and sets the content size.
+    /// Ignored while zoomed — the scroll view owns the frame then.
+    public func fitImage() {
+      guard zoomScale <= minimumZoomScale, bounds.width > 0, imageAspect > 0 else { return }
+      let height = bounds.width * imageAspect
+      imageView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: height)
+      contentSize = CGSize(width: bounds.width, height: height)
     }
   }
 #endif
