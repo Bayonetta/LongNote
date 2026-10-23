@@ -15,6 +15,10 @@
     @State private var showLinkPrompt = false
     @State private var linkDraft = ""
     @State private var showImageLimitAlert = false
+    /// The style strip is an inline row rather than a `Menu`: a menu is presented
+    /// by the system with a slide-up animation, and the original editor simply
+    /// swaps the row in.
+    @State private var showStyleRow = false
     /// Captured when the link prompt opens: the alert resigns first responder,
     /// which clears the focused paragraph and the selection.
     @State private var linkTarget: (id: Paragraph.ID, selection: NSRange?)?
@@ -35,15 +39,20 @@
     }
 
     var body: some View {
-      HStack(spacing: 0) {
-        imagePicker
-        styleMenu
-        quoteButton
-        listButton
-        linkButton
-        dividerButton
+      VStack(spacing: 0) {
+        if showStyleRow {
+          styleRow
+        }
+        HStack(spacing: 0) {
+          imagePicker
+          styleButton
+          quoteButton
+          listButton
+          linkButton
+          dividerButton
+        }
+        .frame(height: 46)
       }
-      .frame(height: 46)
       .background(.bar)
       .overlay(alignment: .top) { Divider() }
       .onChange(of: selectedImageItem) { _, item in
@@ -83,25 +92,49 @@
       .accessibilityLabel("Insert image")
     }
 
-    /// Form — paragraph style menu (title / heading / body / quote / list).
-    private var styleMenu: some View {
-      Menu {
+    /// Aa — toggles the inline style strip (title / heading / body).
+    private var styleButton: some View {
+      Button {
+        // No animation anywhere in this toggle: the strip is static chrome that
+        // appears and disappears, not a presentation.
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+          showStyleRow.toggle()
+        }
+      } label: {
+        barIcon("textformat.size", active: showStyleRow)
+      }
+      .accessibilityLabel("Paragraph style")
+    }
+
+    /// The style strip: three equal text slots, one per heading/body style.
+    /// Quote and list are not here — the bar already has a button for each.
+    private var styleRow: some View {
+      HStack(spacing: 0) {
         ForEach(ParagraphKind.styleKinds, id: \.self) { kind in
           Button {
             guard let id = targetID() else { return }
             document.setKind(kind, for: id)
-          } label: {
-            if focusedKind == kind {
-              Label(styleName(kind), systemImage: "checkmark")
-            } else {
-              Text(styleName(kind))
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+              showStyleRow = false
             }
+          } label: {
+            Text(styleName(kind))
+              .font(.system(size: 14, weight: focusedKind == kind ? .semibold : .regular))
+              .foregroundStyle(
+                focusedKind == kind ? TextStyle.accentColor.color : TextStyle.textColor.color
+              )
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .contentShape(Rectangle())
           }
+          .accessibilityLabel(styleName(kind))
         }
-      } label: {
-        barIcon("textformat.size")
       }
-      .accessibilityLabel("Paragraph style")
+      .frame(height: 40)
+      .overlay(alignment: .bottom) { Divider() }
     }
 
     /// Quote — toggles the block-quote style on the focused paragraph.

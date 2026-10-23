@@ -29,6 +29,10 @@ public enum ParagraphKind: String, Codable, Sendable, CaseIterable, Hashable {
     }
   }
 
-  /// Kinds a user can pick from the paragraph-style toolbar.
-  public static let styleKinds: [ParagraphKind] = [.title, .header, .body, .quote, .list]
+  /// Kinds a user can pick from the paragraph-style control.
+  ///
+  /// Quote and list are deliberately absent: both have their own dedicated
+  /// button on the compose bar, so repeating them here only duplicates the
+  /// toolbar.
+  public static let styleKinds: [ParagraphKind] = [.title, .header, .body]
 }

@@ -59,14 +59,28 @@
         typingAttributes[.link] = url
 
       case .setParagraphStyle(let kind):
-        let whole = NSRange(location: 0, length: textStorage.length)
-        if whole.length > 0 {
-          textStorage.beginEditing()
-          textStorage.addAttribute(.font, value: kind.baseFont, range: whole)
-          textStorage.addAttribute(.foregroundColor, value: kind.baseColor, range: whole)
-          textStorage.endEditing()
+        // Re-derive the block's typography from the runs instead of flattening
+        // every run to the base font: bold, strikethrough, colour and links the
+        // user applied have to survive a style change, and the paragraph style
+        // (leading + CJK-aware alignment) has to follow the new kind too.
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = kind.lineSpacing
+        paragraphStyle.alignment = CodableAttributedString.alignment(for: textStorage.string)
+
+        let caret = selectedRange
+        let styled = CodableAttributedString(textStorage).styledText(kind)
+        if styled.length > 0 {
+          textStorage.setAttributedString(styled)
+          let length = textStorage.length
+          let location = min(caret.location, length)
+          selectedRange = NSRange(
+            location: location, length: min(caret.length, length - location))
         }
-        typingAttributes = [.font: kind.baseFont, .foregroundColor: kind.baseColor]
+        typingAttributes = [
+          .font: kind.baseFont,
+          .foregroundColor: kind.baseColor,
+          .paragraphStyle: paragraphStyle,
+        ]
       }
     }
 

@@ -78,11 +78,32 @@
       let coordinator = context.coordinator
       coordinator.representable = self
 
-      // 1. Sync text only when it really changed (prevents cursor jumps).
-      let current = textView.attributedText ?? NSAttributedString(string: "")
-      if !current.isEqual(to: text) {
+      // 1. Sync text only when the *content* really changed (prevents cursor
+      //    jumps).
+      //
+      //    `isEqual(to:)` is the wrong test here. The value handed in is
+      //    `styledText(kind)`, which always carries the block's paragraph style
+      //    and base font, while the live text view holds whatever TextKit kept —
+      //    freshly typed characters get the typing attributes (no paragraph
+      //    style), so the two are never equal. Every update pass therefore
+      //    replaced the whole string, which parks the caret at the end of the
+      //    text and throws away the styling the toolbar had just applied.
+      //    Semantic equality (characters + bold/italic/strike/colour/link) is
+      //    the right comparison: typography is derived from the kind, not part
+      //    of the document.
+      let current = CodableAttributedString(
+        textView.attributedText ?? NSAttributedString(string: ""))
+      if current != CodableAttributedString(text) {
+        let caret = textView.selectedRange
         coordinator.isProgrammaticChange = true
         textView.attributedText = text
+        // Replacing `attributedText` moves the selection to the very end; put
+        // the caret back so a legitimate resync doesn't read as "focus jumped
+        // to the end of the line".
+        let length = textView.textStorage.length
+        let location = min(caret.location, length)
+        textView.selectedRange = NSRange(
+          location: location, length: min(caret.length, length - location))
         coordinator.isProgrammaticChange = false
       }
 
@@ -105,11 +126,20 @@
       }
 
       // 4. Programmatic selection.
-      if isFocused, let selection, selection != textView.selectedRange {
-        coordinator.isProgrammaticChange = true
-        textView.selectedRange = selection
-        coordinator.isProgrammaticChange = false
-        onSelectionConsumed?()
+      if isFocused, let selection {
+        if selection != textView.selectedRange {
+          coordinator.isProgrammaticChange = true
+          textView.selectedRange = selection
+          coordinator.isProgrammaticChange = false
+        }
+        // Consume the request even when it already matched. A request that is
+        // left sitting in the coordinator gets re-applied on the next update
+        // pass and yanks the caret back to a stale range while the user types —
+        // the "focus jumps around on its own" symptom. Clearing it mutates
+        // observed state, so do it after the current pass.
+        DispatchQueue.main.async { [weak coordinator] in
+          coordinator?.representable.onSelectionConsumed?()
+        }
       }
 
       // 5. Styling action (applied exactly once per distinct action).
