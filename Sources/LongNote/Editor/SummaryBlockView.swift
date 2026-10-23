@@ -17,7 +17,10 @@
         ),
         axis: .vertical
       )
-      .lineLimit(1...4)
+      // Same rule as the title: no line cap and no inner scrolling. The lede
+      // grows with its text instead of turning into a four-line scrolling well.
+      .lineLimit(nil)
+      .scrollDisabled(true)
       .font(.system(size: TextStyle.summaryFontSize))
       .foregroundStyle(TextStyle.secondaryTextColor.color)
       .padding(.horizontal, 12)

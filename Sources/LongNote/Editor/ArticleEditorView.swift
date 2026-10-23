@@ -62,20 +62,14 @@
       // The compose bar is not pinned to the bottom of the screen: it rides on
       // the keyboard (like the original editor) and leaves with it.
       //
-      // A bottom safe-area inset of "bar + keyboard height" places the bar
-      // directly on the keyboard's top edge. `ignoresSafeArea(.keyboard)` is
-      // what makes that exact: without it the inset is measured from the home
-      // indicator instead of the screen bottom, leaving a ~34 pt gap between the
-      // bar and the keyboard.
+      // UIKit already folds the keyboard's height into the bottom safe area, so a
+      // plain conditional inset is enough to rest the bar exactly on the
+      // keyboard's top edge. Do not add a manual keyboard-height spacer or
+      // `.ignoresSafeArea(.keyboard)`: that collapses the inset to the bar alone
+      // and re-opens the home-indicator gap, letting content bleed through it.
       .safeAreaInset(edge: .bottom, spacing: 0) {
         if keyboardInset > 0 {
-          VStack(spacing: 0) {
-            toolbar
-            // Fills the keyboard's own area, which the keyboard covers anyway.
-            Color.clear.frame(height: keyboardInset)
-          }
-          .ignoresSafeArea(.keyboard, edges: .bottom)
-          .transition(.move(edge: .bottom))
+          toolbar.transition(.move(edge: .bottom))
         }
       }
       .animation(.easeOut(duration: 0.25), value: keyboardInset)
@@ -114,13 +108,6 @@
         }
       }
       .onDisappear { document.saveNow() }
-      .overlay(alignment: .topLeading) {
-        Text("inset=\(keyboardInset)")
-          .font(.caption2)
-          .padding(6)
-          .background(.yellow.opacity(0.8))
-          .padding(.leading, 60)
-      }
     }
 
     // MARK: - Paragraph rows
@@ -154,14 +141,8 @@
     private static func keyboardHeight(in note: Notification) -> CGFloat {
       guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
         frame.height > 1
-      else {
-        NSLog("[DEBUG] kb no-frame note=%@", note.name.rawValue)
-        return 0
-      }
-      let h = max(UIScreen.main.bounds.height - frame.minY, 0)
-      NSLog("[DEBUG] kb note=%s frame=%s screen=%.1f -> inset=%.1f",
-            note.name.rawValue, "\(frame)", UIScreen.main.bounds.height, h)
-      return h
+      else { return 0 }
+      return max(UIScreen.main.bounds.height - frame.minY, 0)
     }
 
     private static func keyboardDuration(in note: Notification) -> Double {

@@ -29,23 +29,6 @@ struct EditorScreen: View {
         document = ArticleDocument(article: article, store: store)
       }
     }
-    // TEMP DEBUG
-    .task {
-      let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("debug-focus.txt")
-      while !Task.isCancelled {
-        if let command = try? String(contentsOf: url, encoding: .utf8) {
-          try? FileManager.default.removeItem(at: url)
-          if let index = Int(command.trimmingCharacters(in: .whitespacesAndNewlines)),
-            let document, index < document.article.paragraphs.count
-          {
-            document.focus.focus(document.article.paragraphs[index].id,
-                                 selection: NSRange(location: 0, length: 0))
-          }
-        }
-        try? await Task.sleep(nanoseconds: 300_000_000)
-      }
-    }
     .sheet(isPresented: $isPresentingExport) {
       if let document {
         ExportView(article: document.article, store: store)

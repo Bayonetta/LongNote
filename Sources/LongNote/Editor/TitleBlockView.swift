@@ -28,7 +28,15 @@
         ),
         axis: .vertical
       )
-      .lineLimit(1...2)
+      // No maximum line count on purpose. A `lineLimit(1...n)` cap is precisely
+      // what turns a vertical `TextField` into a scrollable box: once the text
+      // passes `n` lines the field stops growing and pans its content instead, so
+      // the title looks like it scrolls up and down. Without a cap the field
+      // always grows to fit, and `scrollDisabled` guarantees there is no inner
+      // scroll view left to drag. Growth is bounded anyway — input stops at 32
+      // characters.
+      .lineLimit(nil)
+      .scrollDisabled(true)
       .font(.system(size: TextStyle.articleTitleFontSize, weight: .bold))
       .foregroundStyle(TextStyle.textColor.color)
       .frame(maxWidth: .infinity, alignment: .leading)
