@@ -1,65 +1,128 @@
+<div align="center">
+
 # LongNote
 
-**[English](README.md)** · [日本語](README.ja.md) · [中文](README.zh-CN.md)
+[简体中文](README.zh-CN.md) | **English** | [日本語](README.ja.md)
 
 [![CI](https://github.com/Bayonetta/LongNote/actions/workflows/ci.yml/badge.svg)](https://github.com/Bayonetta/LongNote/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue.svg)
 
-**LongNote** — a pure Swift Package that rebuilds the long-article feature of WeicoNote, a popular Weibo client, as a data-driven rich-text / multimedia card editor, in SwiftUI + TextKit 2, with all networking and platform integration stripped out.
+</div>
 
-## Screenshots
+LongNote is a Swift Package for building offline long-form article editors. It is a from-scratch reimplementation of the former standalone app WeicoNote, which originated from Weibo's Toutiao article feature, using SwiftUI, TextKit 2, and other modern Apple frameworks.
 
-![LongNote editor with a sample article, and the draft list](docs/screenshots.png)
+![LongNote editor and draft list](docs/screenshots.png)
 
-*Editor with rich text, mixed block types and autosaved drafts*
+## Features
 
-## What is LongNote
+- **Rich text editing** — paragraph-level formatting with bold, italic, strikethrough, color, and links, backed by TextKit 2.
+- **Mixed content blocks** — headings, body text, quotes, lists, images, and dividers in one document.
+- **Article metadata** — 16:9 cover image, title limited to 32 characters, and optional summary.
+- **Draft autosave** — file-based `ArticleStore` with one directory per article and a 2-second debounce; no SwiftData dependency.
+- **Long-image export** — renders an article as one image when possible, then falls back to tiled rendering for very long content.
+- **Save and share** — integrates with Photos, `ShareLink`, and `UIActivityViewController`.
+- **Readable rich-text storage** — text and formatting are saved as JSON, making drafts easy to inspect and compare.
 
-A **pure Swift Package** component library that descends from the long-article feature of WeicoNote, a popular Weibo client, and rebuilds it from scratch in SwiftUI + TextKit 2 — with all networking (login, material library, payment, publishing) stripped out.
+## Architecture
 
-You get the parts that made the original editor great:
+LongNote is split into a platform-independent core and an iOS UI layer:
 
-- **Per-paragraph rich text** — each paragraph is a `UITextView` (TextKit 2), giving full per-run control over bold / strikethrough / color / link, exactly like the original one-paragraph-per-row list.
-- **Cover / title / summary** — 16:9 cover, 32-character title (input simply stops at the limit), optional lede.
-- **Mixed blocks** — H1 / H2 / body / quote / list / image / divider in one flow.
-- **Long-image export** — SwiftUI `ImageRenderer` with a tiling fallback for very long articles.
-- **Draft autosave** — a tiny file-based `ArticleStore` (one directory per article), autosaved with a 2 s debounce. The library does not bind you to SwiftData.
-- **Save to Photos / share** — via Photos / `ShareLink` / `UIActivityViewController`.
+| Target | Responsibility |
+|---|---|
+| `LongNoteCore` | Models, paragraph mutations, storage, and text styles |
+| `LongNote` | SwiftUI editor, TextKit 2 bridge, and image rendering |
+| `LongNoteTests` | Core unit tests |
 
-## Technical highlights
-
-**1. Editing rules are pure functions.** `ParagraphMutation` maps every keyboard gesture — Return split, backspace-at-start merge, multi-line paste, style conversion, block insertion — to a `[Paragraph] -> Result` transformation. Nothing touches UIKit, so the logic is unit-tested (55 tests) on any platform, including Linux and Windows.
-
-**2. No cursor jumps in the SwiftUI ↔ UITextView bridge.** One `UITextView` per paragraph, bridged through a `UIViewRepresentable` (`RichTextView`). The text is re-set only when the external value actually differs from the text view's content; edits flow back through the delegate, never through two-way binding. Row height is derived from the paragraph model (`ParagraphMetrics`), so the layout stays correct for every row — even one the stack has released — and never jumps between an estimate and a measurement.
-
-**3. `@FocusState` can't reach a `UIViewRepresentable` — so a `FocusCoordinator` does.** It records the focused paragraph id, drives first responder per text view, and carries a requested cursor position after splits and merges.
-
-**4. Portable rich-text persistence.** `CodableAttributedString` stores rich text as **semantic runs** — text plus bold / italic / strikethrough / colour / link — instead of an opaque `NSKeyedArchive` blob. The document JSON stays readable, diffable and searchable, and works outside Apple platforms. v1 archives still decode and are rewritten as v2 on the next save (see [`FORMAT.md`](FORMAT.md)).
-
-**5. Memory-safe long-image export.** A 30k-character article is tens of thousands of points tall — rendering it whole would exhaust memory. `ArticleImageRenderer` measures first (`sizeThatFits`), renders in one shot when it fits `maxSingleHeight` (default 5000 pt), otherwise renders `maxTileHeight` tiles and stitches them, and returns `nil` when even the stitched image would exceed a safe pixel height so callers can offer `renderTiles(_:)` as a set instead.
-
-**6. Cross-platform package architecture.** `LongNoteCore` (Foundation-only) and `LongNote` (UIKit) are separate targets, with `#if canImport(UIKit)` conditional compilation — full builds on macOS/iOS and core tests on Windows/Linux from one source tree.
+The editing rules are pure transformations. Actions such as splitting, merging, pasting, converting styles, and inserting blocks are expressed as `ParagraphMutation` operations and tested without UIKit. `LongNote` re-exports `LongNoteCore`, so applications can use `import LongNote` for both the editor and the data model.
 
 ## Requirements
 
-- Xcode 16+ (Swift 6 toolchain)
-- iOS 18+ (uses `@Observable`, TextKit 2, `ImageRenderer`, `PhotosPicker`, `ShareLink`)
+- Xcode 16+
+- Swift 6 toolchain
+- iOS 18+
 
-The **core** (`LongNoteCore` target) is platform-independent: models, paragraph mutation algorithms and file storage use only Foundation, so `swift test` runs on Windows / Linux as well as macOS.
+`LongNoteCore` only depends on Foundation, so its models, paragraph mutation rules, storage protocol, and file store can be reused across platforms. The `LongNote` target contains the iOS editor UI and depends on SwiftUI, UIKit, and TextKit 2.
+
+## Storage
+
+`FileArticleStore` stores each draft as an independent directory under the app's Documents directory:
+
+```text
+Documents/Articles/
+└── <article-uuid>/
+    ├── article.json
+    └── images/
+        └── <file-name>
+```
+
+For example, a document with a formatted paragraph and an image block is stored like this:
+
+```json
+{
+  "schemaVersion": 2,
+  "id": "A1B2C3D4-...",
+  "title": "Apple Supercharges Its Tools and Technologies for Developers",
+  "summary": "Access to the on-device Apple Intelligence model, large language model integration in Xcode, and an elegant new software design across Apple platforms.",
+  "cover": { "fileName": "cover-<uuid>.jpg", "width": 1600, "height": 900 },
+  "createdAt": "2026-11-13T00:00:00Z",
+  "updatedAt": "2026-11-13T00:00:00Z",
+  "paragraphs": [
+    {
+      "id": "11111111-...",
+      "kind": "title",
+      "text": {
+        "string": "A New Design, More Focus on Content"
+      },
+      "image": null,
+      "isLastInList": false
+    },
+    {
+      "id": "22222222-...",
+      "kind": "body",
+      "text": {
+        "runs": [
+          { "text": "CUPERTINO, CALIFORNIA Apple today announced new technologies and enhancements to its developer tools. A " },
+          { "text": "beautiful new software design", "bold": true },
+          { "text": " brings more focus to content. The " },
+          { "text": "Foundation Models framework", "color": [0.16, 0.50, 0.97, 1] },
+          { "text": " joins a suite of tools, and " },
+          { "text": "Xcode 26", "link": "https://www.apple.com/newsroom/2025/06/apple-supercharges-its-tools-and-technologies-for-developers/" }
+        ]
+      },
+      "image": null,
+      "isLastInList": false
+    },
+    {
+      "id": "33333333-...",
+      "kind": "image",
+      "text": { "string": "" },
+      "image": {
+        "fileName": "figure-<uuid>.jpg",
+        "width": 1200,
+        "height": 800,
+        "caption": "Figure — the LongNote editor stack: a platform-neutral core, a TextKit 2 bridge, and a SwiftUI shell."
+      },
+      "isLastInList": false
+    }
+  ]
+}
+```
+
+`article.json` contains metadata, paragraph structure, text formatting, and image references. The actual image bytes are stored as `cover.jpg` and `images/image-01.jpg`; JSON only stores their filenames and dimensions. Text and formatting remain readable in the file, making drafts easy to inspect and compare. The `ArticleStore` protocol keeps the editor independent from the persistence implementation, so an application can provide its own store when needed.
 
 ## Installation
 
-Swift Package Manager:
+Add LongNote with Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/YOUR_GITHUB_USERNAME/LongNote.git", from: "1.0.0"),
+    .package(url: "https://github.com/Bayonetta/LongNote.git", from: "1.0.0")
 ]
 ```
 
-For local development, point at this directory:
+For local development:
 
 ```swift
 .package(path: "../LongNote")
@@ -71,74 +134,28 @@ For local development, point at this directory:
 import SwiftUI
 import LongNote
 
-struct MyEditorScreen: View {
+struct EditorScreen: View {
     @State private var document: ArticleDocument?
 
     var body: some View {
-        if let document {
-            ArticleEditorView(document: document, onClose: { dismiss() }) {
-                // export a long image
+        Group {
+            if let document {
+                ArticleEditorView(document: document, onClose: {})
+            } else {
+                ProgressView()
             }
-        } else {
-            ProgressView().task {
-                let store = FileArticleStore()
-                let article = Article.empty()   // or store.load(id)
-                document = ArticleDocument(article: article, store: store)
-            }
+        }
+        .task {
+            let store = FileArticleStore()
+            document = ArticleDocument(article: .empty(), store: store)
         }
     }
 }
 ```
 
-## Export a long image
-
-```swift
-let image = await ArticleImageRenderer.render(article) { fileName in
-    guard let data = try? store.loadImage(fileName, for: article.id) else { return nil }
-    return UIImage(data: data)
-}
-try? await image?.saveToPhotoLibrary()
-```
-
-For very long articles use `ArticleImageRenderer.renderTiles(...)` and share the resulting set — see `Examples/LongNoteDemo/ExportView.swift`.
-
-## Package layout
-
-| Target | Contents | Platforms |
-|---|---|---|
-| `LongNoteCore` | `Model`, `Mutation` (ParagraphMutation), `Storage`, `TextStyle` | any (Foundation only) |
-| `LongNote` | `Editor` (RichTextView bridge, views, toolbars), `Rendering`, `RichText` | iOS 18+ |
-| `LongNoteTests` | Unit tests for the core | any |
-
-`LongNote` re-exports `LongNoteCore`, so `import LongNote` brings in the models and store alongside the UI.
-
-```
-Sources/
-├── LongNoteCore/
-│   ├── Model/          ParagraphKind · Paragraph · ParagraphImage · Article ·
-│   │                   CodableAttributedString · TextRun · PlatformRichText
-│   ├── Mutation/       ParagraphMutation — split/merge/convert/paste/insert (pure, unit-tested)
-│   ├── Storage/        ArticleStore protocol · FileArticleStore
-│   └── TextStyle/      font sizes · spacing · RGBA colors (platform-neutral)
-└── LongNote/
-    ├── Editor/         ArticleDocument (@Observable) · FocusCoordinator · RichTextView ·
-    │                   ArticleEditorView · ParagraphEditorView · block views · toolbars
-    ├── Rendering/      ArticleRenderView · ArticleImageRenderer (tile fallback) · LongImagePreview (pinch/double-tap zoom)
-    └── RichText/       NSAttributedString HTML/AttributedString helpers
-```
-
-## Tests
-
-```sh
-# macOS / Linux / Windows — the core tests run anywhere:
-swift test --filter LongNoteTests
-```
-
-On a Mac, `swift build` / `swift test` compile everything (including the iOS UI). The editor itself is exercised by running `LongNoteDemo` in Xcode.
-
 ## Demo app
 
-`Examples/LongNoteDemo/` contains a minimal iOS app (draft list → editor → long-image preview → save/share). It seeds a fully-populated sample article on first launch, so the editor can be inspected immediately — and screenshots are representative. Generate its Xcode project with [XcodeGen](https://github.com/yonaskolb/XcodeGen):
+`Examples/LongNoteDemo` is a small iOS app showing the draft list, editor, long-image preview, save, and share flows.
 
 ```sh
 cd Examples/LongNoteDemo
@@ -146,23 +163,14 @@ xcodegen generate
 open LongNoteDemo.xcodeproj
 ```
 
-See `Examples/LongNoteDemo/README.md` for details and a no-XcodeGen route.
+See [`Examples/LongNoteDemo/README.md`](Examples/LongNoteDemo/README.md) for setup details.
 
-## Storage format
+## Tests
 
-Each draft is a directory with one JSON document plus its images. Rich text is
-stored as semantic runs, so the file stays readable and portable:
-
-```json
-"text": { "runs": [ { "text": "A paragraph with " },
-                    { "text": "bold", "bold": true },
-                    { "text": " and a " },
-                    { "text": "link", "link": "https://example.com" } ] }
+```sh
+swift test --filter LongNoteTests
 ```
 
-The full schema, the v1 compatibility rules and the migration steps are in
-[`FORMAT.md`](FORMAT.md).
+## License
 
-## Origin & scope
-
-LongNote descends from the long-article feature of WeicoNote, a popular Weibo client (2015, iOS 8, Objective-C), rebuilt from scratch as a modern Swift package. The account system, material library, payment, and publishing features were deliberately **not** ported — this package is purely an offline editing + export toolkit, licensed under the MIT License.
+MIT. See [`LICENSE`](LICENSE).
